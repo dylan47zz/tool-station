@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小工具箱 - 日常实用工具集合</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    
+    header p {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+    
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .tool-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .tool-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+    
+    .tool-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    
+    .tool-desc {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    
+    .tool-panel {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-top: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .tool-panel.active {
+      display: block;
+    }
+    
+    .tool-panel h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    textarea, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: monospace;
+      margin-bottom: 15px;
+    }
+    
+    textarea:focus, input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    textarea {
+      min-height: 200px;
+      resize: vertical;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #5a6fd6;
+    }
+    
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      margin-right: 10px;
+    }
+    
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    
+    .copy-btn {
+      margin-top: 10px;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #999;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🍎 小工具箱</h1>
+    <p>日常实用工具集合 - 简单、免费、无需登录</p>
+  </header>
+  
+  <div class="container">
+    <div class="tools-grid" id="toolsGrid"></div>
+    
+    <!-- JSON 格式化工具 -->
+    <div class="tool-panel" id="panel-json">
+      <h2>📄 JSON 格式化</h2>
+      <textarea id="json-input" placeholder="请输入 JSON 字符串..."></textarea>
+      <button class="btn btn-primary" onclick="formatJSON()">格式化</button>
+      <button class="btn btn-secondary" onclick="compressJSON()">压缩</button>
+      <div class="result" id="json-result"></div>
+      <button class="btn btn-secondary copy-btn" onclick="copyResult('json-result')">复制结果</button>
+    </div>
+    
+    <!-- Base64 编解码 -->
+    <div class="tool-panel" id="panel-base64">
+      <h2>🔤 Base64 编解码</h2>
+      <textarea id="base64-input" placeholder="请输入内容..."></textarea>
+      <button class="btn btn-primary" onclick="encodeBase64()">编码</button>
+      <button class="btn btn-secondary" onclick="decodeBase64()">解码</button>
+      <div class="result" id="base64-result"></div>
+      <button class="btn btn-secondary copy-btn" onclick="copyResult('base64-result')">复制结果</button>
+    </div>
+    
+    <!-- 时间戳转换 -->
+    <div class="tool-panel" id="panel-timestamp">
+      <h2>⏰ 时间戳转换</h2>
+      <input type="text" id="timestamp-input" placeholder="输入时间戳（如 1704067200）或日期时间">
+      <button class="btn btn-primary" onclick="timestampToDate()">时间戳 → 日期</button>
+      <button class="btn btn-secondary" onclick="dateToTimestamp()">日期 → 时间戳</button>
+      <div class="result" id="timestamp-result"></div>
+      <button class="btn btn-secondary copy-btn" onclick="copyResult('timestamp-result')">复制结果</button>
+    </div>
+    
+    <!-- 颜色转换 -->
+    <div class="tool-panel" id="panel-color">
+      <h2>🎨 颜色转换</h2>
+      <input type="text" id="color-input" placeholder="输入颜色值，如 #667eea 或 rgb(102, 126, 234)">
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <input type="color" id="color-picker" value="#667eea" onchange="colorPickerChange()">
+        <button class="btn btn-primary" onclick="convertColor()">转换</button>
+      </div>
+      <div class="result" id="color-result"></div>
+    </div>
+    
+    <!-- 密码生成器 -->
+    <div class="tool-panel" id="panel-password">
+      <h2>🔑 密码生成器</h2>
+      <div style="margin-bottom: 15px;">
+        <label>密码长度: <input type="number" id="password-length" value="16" min="4" max="64" style="width: 80px;"></label>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label><input type="checkbox" id="password-number" checked> 包含数字</label>
+        <label><input type="checkbox" id="password-lower" checked> 包含小写字母</label>
+        <label><input type="checkbox" id="password-upper" checked> 包含大写字母</label>
+        <label><input type="checkbox" id="password-symbol" checked> 包含特殊字符</label>
+      </div>
+      <button class="btn btn-primary" onclick="generatePassword()">生成密码</button>
+      <div class="result" id="password-result"></div>
+      <button class="btn btn-secondary copy-btn" onclick="copyResult('password-result')">复制密码</button>
+    </div>
+    
+    <!-- Markdown 预览 -->
+    <div class="tool-panel" id="panel-markdown">
+      <h2>📝 Markdown 预览</h2>
+      <textarea id="markdown-input" placeholder="请输入 Markdown 内容..."></textarea>
+      <button class="btn btn-primary" onclick="previewMarkdown()">预览</button>
+      <div class="result" id="markdown-result" style="background: white; padding: 20px;"></div>
+    </div>
+    
+    <!-- URL 编解码 -->
+    <div class="tool-panel" id="panel-url">
+      <h2>🔗 URL 编解码</h2>
+      <textarea id="url-input" placeholder="请输入 URL..."></textarea>
+      <button class="btn btn-primary" onclick="encodeURL()">编码</button>
+      <button class="btn btn-secondary" onclick="decodeURL()">解码</button>
+      <div class="result" id="url-result"></div>
+      <button class="btn btn-secondary copy-btn" onclick="copyResult('url-result')">复制结果</button>
+    </div>
+    
+    <!-- 字数统计 -->
+    <div class="tool-panel" id="panel-count">
+      <h2>📊 字数统计</h2>
+      <textarea id="count-input" placeholder="请输入文本..." oninput="countChars()"></textarea>
+      <div class="result" id="count-result">
+        字符数: 0
+        字数: 0
+        行数: 0
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <p>🍎 小工具箱 - 持续更新中...</p>
+  </footer>
+
+  <script>
+    // 工具列表配置
+    const tools = [
+      { id: 'json', name: 'JSON 格式化', desc: '格式化、压缩 JSON 数据', icon: '📄' },
+      { id: 'base64', name: 'Base64 编解码', desc: 'Base64 编码和解码', icon: '🔤' },
+      { id: 'timestamp', name: '时间戳转换', desc: '时间戳和日期互转', icon: '⏰' },
+      { id: 'color', name: '颜色转换', desc: 'HEX、RGB、HSL 互转', icon: '🎨' },
+      { id: 'password', name: '密码生成器', desc: '生成随机安全密码', icon: '🔑' },
+      { id: 'markdown', name: 'Markdown 预览', desc: '实时预览 Markdown', icon: '📝' },
+      { id: 'url', name: 'URL 编解码', desc: 'URL 编码和解码', icon: '🔗' },
+      { id: 'count', name: '字数统计', desc: '统计字符、字数、行数', icon: '📊' }
+    ];
+    
+    // 初始化工具网格
+    function initTools() {
+      const grid = document.getElementById('toolsGrid');
+      tools.forEach(tool => {
+        const card = document.createElement('div');
+        card.className = 'tool-card';
+        card.onclick = () => showPanel(tool.id);
+        card.innerHTML = `
+          <div class="tool-icon">${tool.icon}</div>
+          <div class="tool-name">${tool.name}</div>
+          <div class="tool-desc">${tool.desc}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+    
+    // 显示工具面板
+    function showPanel(id) {
+      document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+      document.getElementById('panel-' + id).scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // JSON 格式化
+    function formatJSON() {
+      try {
+        const input = document.getElementById('json-input').value;
+        const obj = JSON.parse(input);
+        document.getElementById('json-result').textContent = JSON.stringify(obj, null, 2);
+      } catch (e) {
+        document.getElementById('json-result').textContent = 'JSON 格式错误: ' + e.message;
+      }
+    }
+    
+    function compressJSON() {
+      try {
+        const input = document.getElementById('json-input').value;
+        const obj = JSON.parse(input);
+        document.getElementById('json-result').textContent = JSON.stringify(obj);
+      } catch (e) {
+        document.getElementById('json-result').textContent = 'JSON 格式错误: ' + e.message;
+      }
+    }
+    
+    // Base64 编解码
+    function encodeBase64() {
+      try {
+        const input = document.getElementById('base64-input').value;
+        document.getElementById('base64-result').textContent = btoa(unescape(encodeURIComponent(input)));
+      } catch (e) {
+        document.getElementById('base64-result').textContent = '编码错误: ' + e.message;
+      }
+    }
+    
+    function decodeBase64() {
+      try {
+        const input = document.getElementById('base64-input').value;
+        document.getElementById('base64-result').textContent = decodeURIComponent(escape(atob(input)));
+      } catch (e) {
+        document.getElementById('base64-result').textContent = '解码错误: ' + e.message;
+      }
+    }
+    
+    // 时间戳转换
+    function timestampToDate() {
+      try {
+        let input = document.getElementById('timestamp-input').value.trim();
+        // 自动识别毫秒/秒
+        if (input.length === 10) input = input + '000';
+        const date = new Date(parseInt(input));
+        document.getElementById('timestamp-result').textContent = date.toLocaleString('zh-CN');
+      } catch (e) {
+        document.getElementById('timestamp-result').textContent = '转换错误: ' + e.message;
+      }
+    }
+    
+    function dateToTimestamp() {
+      try {
+        const input = document.getElementById('timestamp-input').value;
+        const date = new Date(input);
+        const timestamp = date.getTime();
+        document.getElementById('timestamp-result').textContent = '秒: ' + Math.floor(timestamp / 1000) + '\n毫秒: ' + timestamp;
+      } catch (e) {
+        document.getElementById('timestamp-result').textContent = '转换错误: ' + e.message;
+      }
+    }
+    
+    // 颜色转换
+    function colorPickerChange() {
+      document.getElementById('color-input').value = document.getElementById('color-picker').value;
+      convertColor();
+    }
+    
+    function convertColor() {
+      const input = document.getElementById('color-input').value.trim();
+      let hex = input;
+      
+      // 如果是 rgb() 格式
+      if (input.startsWith('rgb')) {
+        const match = input.match(/\d+/g);
+        if (match && match.length >= 3) {
+          const r = parseInt(match[0]);
+          const g = parseInt(match[1]);
+          const b = parseInt(match[2]);
+          hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        }
+      }
+      
+      // 转为 HEX
+      hex = hex.replace('#', '');
+      if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      
+      document.getElementById('color-result').textContent = 
+        'HEX: #' + hex.toUpperCase() + '\n' +
+        'RGB: rgb(' + r + ', ' + g + ', ' + b + ')\n' +
+        'HSL: hsl(' + rgbToHsl(r, g, b) + ')';
+    }
+    
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+      return Math.round(h * 360) + ', ' + Math.round(s * 100) + '%, ' + Math.round(l * 100) + '%';
+    }
+    
+    // 密码生成
+    function generatePassword() {
+      const length = parseInt(document.getElementById('password-length').value);
+      const useNumber = document.getElementById('password-number').checked;
+      const useLower = document.getElementById('password-lower').checked;
+      const useUpper = document.getElementById('password-upper').checked;
+      const useSymbol = document.getElementById('password-symbol').checked;
+      
+      let chars = '';
+      if (useNumber) chars += '0123456789';
+      if (useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+      if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if (useSymbol) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+      
+      if (!chars) {
+        document.getElementById('password-result').textContent = '请至少选择一种字符类型';
+        return;
+      }
+      
+      let password = '';
+      for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      document.getElementById('password-result').textContent = password;
+    }
+    
+    // Markdown 预览 (简单实现)
+    function previewMarkdown() {
+      const input = document.getElementById('markdown-input').value;
+      let html = input
+        .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\n/g, '<br>');
+      document.getElementById('markdown-result').innerHTML = html;
+    }
+    
+    // URL 编解码
+    function encodeURL() {
+      try {
+        const input = document.getElementById('url-input').value;
+        document.getElementById('url-result').textContent = encodeURIComponent(input);
+      } catch (e) {
+        document.getElementById('url-result').textContent = '编码错误: ' + e.message;
+      }
+    }
+    
+    function decodeURL() {
+      try {
+        const input = document.getElementById('url-input').value;
+        document.getElementById('url-result').textContent = decodeURIComponent(input);
+      } catch (e) {
+        document.getElementById('url-result').textContent = '解码错误: ' + e.message;
+      }
+    }
+    
+    // 字数统计
+    function countChars() {
+      const input = document.getElementById('count-input').value;
+      const chars = input.length;
+      const words = input.replace(/\s/g, '').length;
+      const lines = input.split('\n').length;
+      document.getElementById('count-result').textContent = 
+        '字符数: ' + chars + '\n' +
+        '字数: ' + words + '\n' +
+        '行数: ' + lines;
+    }
+    
+    // 复制结果
+    function copyResult(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('已复制到剪贴板！');
+      });
+    }
+    
+    // 初始化
+    initTools();
+  </script>
+</body>
+</html>
