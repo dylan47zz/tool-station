@@ -163,6 +163,23 @@
       color: #999;
       font-size: 0.9rem;
     }
+    @media (max-width: 600px) {
+      header { padding: 24px 16px; }
+      header h1 { font-size: 1.5rem; }
+      header p { font-size: 0.85rem; }
+      .container { padding: 16px 12px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .tool-card { padding: 16px; }
+      .tool-icon { font-size: 2rem; margin-bottom: 8px; }
+      .tool-name { font-size: 1rem; }
+      .tool-desc { font-size: 0.8rem; }
+      .tool-panel { padding: 16px; margin-top: 12px; }
+      textarea { min-height: 140px; font-size: 13px; }
+      .btn { padding: 10px 18px; font-size: 0.9rem; }
+    }
+    @media (max-width: 380px) {
+      .tools-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>

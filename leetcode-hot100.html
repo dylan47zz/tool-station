@@ -311,13 +311,67 @@
     color: var(--text);
     cursor: pointer;
     font-size: 18px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* 侧边栏遮罩 */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+    -webkit-tap-highlight-color: transparent;
   }
   @media (max-width: 900px) {
-    .sidebar { transform: translateX(-100%); }
+    .sidebar {
+      transform: translateX(-100%);
+      width: 280px;
+      min-width: 280px;
+    }
     .sidebar.open { transform: translateX(0); }
-    .main { margin-left: 0; padding: 60px 20px; }
-    .menu-toggle { display: block; }
-    .stats { flex-wrap: wrap; }
+    .sidebar.open ~ .sidebar-overlay { display: block; }
+    .main {
+      margin-left: 0;
+      padding: 60px 16px 40px;
+    }
+    .menu-toggle { display: flex; align-items: center; justify-content: center; }
+    .hero h1 { font-size: 26px; }
+    .hero p { font-size: 14px; }
+    .stats { gap: 10px; }
+    .stat-card {
+      padding: 10px 14px;
+      min-width: 0;
+      flex: 1 1 calc(33% - 10px);
+    }
+    .stat-card .num { font-size: 22px; }
+    .stat-card .label { font-size: 11px; }
+    .cat-header h2 { font-size: 18px; }
+    .cat-header .cat-essence { font-size: 13px; }
+    .problem-header { padding: 12px 14px; gap: 8px; }
+    .problem-id { font-size: 12px; min-width: 30px; }
+    .problem-name { font-size: 14px; }
+    .problem-content { padding: 0 14px 14px; }
+    .essence-box { padding: 10px 12px; }
+    .essence-box .text { font-size: 13px; }
+    .analysis { font-size: 13px; line-height: 1.7; }
+    .code-section pre { border-radius: 6px; }
+    .code-section code { font-size: 12px; line-height: 1.5; }
+    .hljs { padding: 12px !important; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .difficulty { font-size: 10px; padding: 2px 6px; }
+    .progress-bar { left: 0; }
+    .back-top { bottom: 16px; right: 16px; width: 36px; height: 36px; font-size: 16px; }
+  }
+  @media (max-width: 480px) {
+    .main { padding: 56px 12px 32px; }
+    .hero h1 { font-size: 22px; }
+    .stat-card { flex: 1 1 calc(33% - 8px); padding: 8px 10px; }
+    .stat-card .num { font-size: 18px; }
+    .problem-header { padding: 10px 12px; }
+    .problem-name { font-size: 13px; }
+    .problem-content { padding: 0 12px 12px; }
+    .essence-box .text { font-size: 12px; }
+    .analysis { font-size: 12px; }
+    .code-section code { font-size: 11px; }
   }
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
@@ -377,6 +431,7 @@
   </div>
   <div id="sidebarNav"></div>
 </nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <main class="main" id="main">
   <div class="hero">
@@ -1686,6 +1741,23 @@ function closeMobile() {
 document.getElementById('menuToggle').onclick = () => {
   document.getElementById('sidebar').classList.toggle('open');
 };
+document.getElementById('sidebarOverlay').onclick = closeMobile;
+// Touch swipe to open/close sidebar
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+  if (dy > 60) return; // vertical scroll, ignore
+  if (touchStartX < 30 && dx > 60) { // swipe from left edge → open
+    document.getElementById('sidebar').classList.add('open');
+  } else if (dx < -60 && document.getElementById('sidebar').classList.contains('open')) { // swipe left → close
+    closeMobile();
+  }
+}, { passive: true });
 </script>
 </body>
 </html>
