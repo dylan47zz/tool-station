@@ -276,7 +276,8 @@
       { id: 'password', name: '密码生成器', desc: '生成随机安全密码', icon: '🔑' },
       { id: 'markdown', name: 'Markdown 预览', desc: '实时预览 Markdown', icon: '📝' },
       { id: 'url', name: 'URL 编解码', desc: 'URL 编码和解码', icon: '🔗' },
-      { id: 'count', name: '字数统计', desc: '统计字符、字数、行数', icon: '📊' }
+      { id: 'count', name: '字数统计', desc: '统计字符、字数、行数', icon: '📊' },
+      { id: 'leetcode', name: 'LeetCode Hot 100', desc: '第一性原理拆解 · 123道算法题', icon: '🧠', link: 'leetcode-hot100.html' }
     ];
     
     // 初始化工具网格
@@ -297,6 +298,11 @@
     
     // 显示工具面板
     function showPanel(id) {
+      const tool = tools.find(t => t.id === id);
+      if (tool && tool.link) {
+        window.location.href = tool.link;
+        return;
+      }
       document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
       document.getElementById('panel-' + id).classList.add('active');
       document.getElementById('panel-' + id).scrollIntoView({ behavior: 'smooth' });

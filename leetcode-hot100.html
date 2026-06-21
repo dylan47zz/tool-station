@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeetCode Hot 100 — 第一性原理拆解</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #d2a8ff;
+    --accent4: #f0883e;
+    --accent5: #ff7b72;
+    --easy: #3fb950;
+    --medium: #d29922;
+    --hard: #f85149;
+    --sidebar-w: 300px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+    transition: transform 0.3s;
+  }
+  .sidebar-header {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .sidebar-header h1 {
+    font-size: 18px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .sidebar-header p {
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .sidebar .cat-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--text2);
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar .cat-item:hover {
+    color: var(--text);
+    background: rgba(88,166,255,0.06);
+  }
+  .sidebar .cat-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(88,166,255,0.08);
+  }
+  .sidebar .cat-item .cat-emoji {
+    margin-right: 8px;
+    font-size: 15px;
+  }
+  .sidebar .cat-item .cat-count {
+    float: right;
+    font-size: 11px;
+    opacity: 0.5;
+  }
+  /* Search */
+  .search-box {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-box input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+  }
+  .search-box input:focus {
+    border-color: var(--accent);
+  }
+  .search-box input::placeholder { color: var(--text2); }
+  /* Main */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 960px;
+  }
+  .hero {
+    margin-bottom: 48px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    color: var(--text2);
+    font-size: 16px;
+    max-width: 640px;
+  }
+  .stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 24px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .stat-card .num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+  /* Category Section */
+  .cat-section {
+    margin-bottom: 48px;
+  }
+  .cat-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cat-header h2 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .cat-header .cat-essence {
+    color: var(--text2);
+    font-size: 14px;
+    font-style: italic;
+  }
+  /* Problem Card */
+  .problem-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .problem-card:hover {
+    border-color: rgba(88,166,255,0.3);
+  }
+  .problem-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+  }
+  .problem-header:hover {
+    background: rgba(88,166,255,0.04);
+  }
+  .problem-id {
+    font-size: 13px;
+    color: var(--text2);
+    min-width: 36px;
+    font-weight: 600;
+  }
+  .problem-name {
+    font-size: 15px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .difficulty {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .difficulty.easy { background: rgba(63,185,80,0.15); color: var(--easy); }
+  .difficulty.medium { background: rgba(210,153,34,0.15); color: var(--medium); }
+  .difficulty.hard { background: rgba(248,81,73,0.15); color: var(--hard); }
+  .toggle-icon {
+    font-size: 18px;
+    color: var(--text2);
+    transition: transform 0.3s;
+  }
+  .problem-card.open .toggle-icon {
+    transform: rotate(90deg);
+  }
+  .problem-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .problem-card.open .problem-body {
+    max-height: 3000px;
+  }
+  .problem-content {
+    padding: 0 20px 20px;
+  }
+  .essence-box {
+    background: linear-gradient(135deg, rgba(88,166,255,0.08), rgba(210,168,255,0.08));
+    border: 1px solid rgba(88,166,255,0.15);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+  }
+  .essence-box .label {
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .essence-box .text {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .analysis {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.8;
+    margin-bottom: 16px;
+    white-space: pre-line;
+  }
+  .code-section .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .code-section .code-label {
+    font-size: 12px;
+    color: var(--accent2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .copy-btn {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .code-section pre {
+    border-radius: 8px;
+    margin: 0;
+  }
+  .code-section code {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  /* Mobile */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 200;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 18px;
+  }
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; padding: 60px 20px; }
+    .menu-toggle { display: block; }
+    .stats { flex-wrap: wrap; }
+  }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text2); }
+  /* Highlight.js overrides */
+  .hljs { background: var(--surface2) !important; padding: 16px !important; }
+  /* Back to top */
+  .back-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 50;
+  }
+  .back-top.visible { opacity: 1; }
+  .back-top:hover { color: var(--accent); border-color: var(--accent); }
+  /* Progress */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-w);
+    height: 2px;
+    background: var(--accent);
+    z-index: 150;
+    transition: width 0.1s;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<button class="menu-toggle" id="menuToggle">☰</button>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>🔬 第一性原理</h1>
+    <p>LeetCode Hot 100 重新拆解</p>
+    <a href="index.html" style="display:inline-block;margin-top:8px;font-size:12px;color:var(--accent);text-decoration:none;">← 返回小工具箱</a>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索题目、编号或关键词…">
+  </div>
+  <div id="sidebarNav"></div>
+</nav>
+
+<main class="main" id="main">
+  <div class="hero">
+    <h1>LeetCode Hot 100</h1>
+    <p>不背题型，从基本事实推导。每道题的本质、约束和逻辑链——用第一性原理重新理解算法。</p>
+    <div class="stats">
+      <div class="stat-card"><div class="num" id="totalCount">0</div><div class="label">题目总数</div></div>
+      <div class="stat-card"><div class="num" id="catCount">0</div><div class="label">原理分类</div></div>
+      <div class="stat-card"><div class="num" id="easyCount">0</div><div class="label">Easy</div></div>
+      <div class="stat-card"><div class="num" id="medCount">0</div><div class="label">Medium</div></div>
+      <div class="stat-card"><div class="num" id="hardCount">0</div><div class="label">Hard</div></div>
+    </div>
+  </div>
+  <div id="content"></div>
+</main>
+
+<button class="back-top" id="backTop">↑</button>
+
+<!-- Data files -->
+<script>
+const data_hot100_part1 = [
+  {
+    category: "信息的前向流动 (动态规划)",
+    categoryEssence: "所有动态规划的本质：将大问题分解为有序的子问题，利用信息从前到后的单向流动，避免重复计算——状态定义即信息压缩，状态转移即信息传递。",
+    problems: [
+      {
+        id: 70,
+        name: "爬楼梯",
+        difficulty: "Easy",
+        essence: "到达第n阶只能从第n-1阶或第n-2阶来，这是一个斐波那契式的信息前向传播。",
+        analysis: "从基本事实出发：你站在第n阶，上一步要么跨了1阶，要么跨了2阶，没有其他可能。因此f(n)=f(n-1)+f(n-2)，这是最纯粹的线性信息流。每个状态只依赖前两个状态，信息沿位置轴单向流动。空间可以压缩到O(1)，因为更早的信息已经不再需要——信息具有有限记忆性。",
+        code: "def climbStairs(self, n):\n    if n <= 2:\n        return n\n    a, b = 1, 2  # f(1), f(2)\n    for _ in range(3, n + 1):\n        a, b = b, a + b  # 信息前向滚动\n    return b"
+      },
+      {
+        id: 198,
+        name: "打家劫舍",
+        difficulty: "Medium",
+        essence: "每个位置只有两个决策：偷或不偷，信息在相邻位置间传递约束。",
+        analysis: "核心矛盾：相邻房屋不能同时偷。对第i间房，要么偷（则第i-1间不能偷），要么不偷（则第i-1间可以偷也可以不偷，取最优）。这自然产生两个状态：dp[i][0]表示不偷第i间的最大收益，dp[i][1]表示偷第i间的最大收益。信息从左到右流动，每个位置的最优解完全由前一个位置的两个状态决定。可压缩为一维，因为只依赖前一步。",
+        code: "def rob(self, nums):\n    if not nums:\n        return 0\n    prev_no, prev_yes = 0, 0  # 不偷/偷前一家时的最大收益\n    for num in nums:\n        # 当前不偷：前一家偷不偷都行，取最大\n        # 当前偷：前一家必须不偷\n        prev_no, prev_yes = max(prev_no, prev_yes), prev_no + num\n    return max(prev_no, prev_yes)"
+      },
+      {
+        id: 213,
+        name: "打家劫舍II",
+        difficulty: "Medium",
+        essence: "环形约束将问题拆分为两个线性子问题——信息在首尾处发生冲突，需分别处理。",
+        analysis: "环形意味着首尾相连，首尾不能同时偷。从第一性原理：任何最优解要么不偷第一家，要么不偷最后一家（或者都不偷，被包含在前两种情况中）。因此将环形拆为两个线性问题：偷[0,n-2]或不偷第一家即偷[1,n-1]，分别求198题的线性解再取最大。这体现了处理环形问题的基本方法论：在冲突点切一刀，化为线性。",
+        code: "def rob(self, nums):\n    if len(nums) <= 3:\n        return max(nums) if nums else 0\n    def linear_rob(arr):\n        prev_no, prev_yes = 0, 0\n        for num in arr:\n            prev_no, prev_yes = max(prev_no, prev_yes), prev_no + num\n        return max(prev_no, prev_yes)\n    # 环形拆为两个线性：不含尾 vs 不含首\n    return max(linear_rob(nums[:-1]), linear_rob(nums[1:]))"
+      },
+      {
+        id: 337,
+        name: "打家劫舍III",
+        difficulty: "Medium",
+        essence: "树形结构上的信息流动——父子之间传递约束，信息沿树边双向传播需后序遍历汇总。",
+        analysis: "树上的约束：父子不能同时偷。与线性版本不同，信息不是单向流动而是从叶子向根汇总。对每个节点定义两个状态：偷当前节点的最大收益，不偷当前节点的最大收益。关键洞察：不偷当前节点时，子节点偷不偷都可以（取子节点两种状态的最大值）；偷当前节点时，子节点必须不偷。用后序遍历自底向上汇总信息，因为根的决策依赖子树的结果。",
+        code: "def rob(self, root):\n    def dfs(node):\n        if not node:\n            return (0, 0)  # (不偷当前, 偷当前)\n        left = dfs(node.left)\n        right = dfs(node.right)\n        # 不偷当前：子节点偷不偷都行\n        not_rob = max(left) + max(right)\n        # 偷当前：子节点必须不偷\n        rob = node.val + left[0] + right[0]\n        return (not_rob, rob)\n    return max(dfs(root))"
+      },
+      {
+        id: 322,
+        name: "零钱兑换",
+        difficulty: "Medium",
+        essence: "每一步选择一个硬币，金额从大到小流动，求最少步骤——这是无权图上的最短路径。",
+        analysis: "从目标金额amount出发，选一个硬币c后就变成子问题amount-c。本质是在一个图上求从amount到0的最短路径，边权都是1（每个硬币消耗一步）。dp[i]表示凑出金额i的最少硬币数，dp[i]=min(dp[i-c]+1)对所有硬币c。初始dp[0]=0（起点），其余为无穷大。信息从小金额向大金额流动，每个状态由比它小的状态转移而来。",
+        code: "def coinChange(self, coins, amount):\n    dp = [float('inf')] * (amount + 1)\n    dp[0] = 0  # 金额0需要0个硬币\n    for i in range(1, amount + 1):\n        for c in coins:\n            if i >= c:\n                dp[i] = min(dp[i], dp[i - c] + 1)\n    return dp[amount] if dp[amount] != float('inf') else -1"
+      },
+      {
+        id: 300,
+        name: "最长递增子序列",
+        difficulty: "Medium",
+        essence: "每个位置记录以该元素结尾的LIS长度，信息沿\"小于关系\"的边向前向传播。",
+        analysis: "定义dp[i]为以nums[i]结尾的最长递增子序列长度。对每个i，找所有j<i使得nums[j]<nums[i]，dp[i]=max(dp[j])+1。信息沿\"值的大小关系\"流动：只有比当前值小的位置才能向当前传递信息。O(n²)做法是遍历所有前置位置；O(nlogn)做法用贪心+二分维护一个tails数组，本质是维护不同长度LIS的最小末尾——更小的末尾意味着更大的扩展潜力。",
+        code: "def lengthOfLIS(self, nums):\n    tails = []  # tails[i] = 长度为i+1的LIS的最小末尾\n    for num in nums:\n        idx = bisect.bisect_left(tails, num)\n        if idx == len(tails):\n            tails.append(num)  # 可以扩展更长的LIS\n        else:\n            tails[idx] = num  # 更小末尾，更大潜力\n    return len(tails)"
+      },
+      {
+        id: 139,
+        name: "单词拆分",
+        difficulty: "Medium",
+        essence: "前缀匹配后的信息传递——已匹配部分将问题缩小为后缀子问题。",
+        analysis: "s能否被拆分，等价于：如果某个字典词匹配了s的前缀，那么剩余后缀也必须能被拆分。定义dp[i]表示s[0:i]能否被拆分，dp[i]=True当且仅当存在j<i使得dp[j]=True且s[j:i]在字典中。信息从前向后流动，每个位置接收之前所有可行切分点的信息。本质是一个可达性问题：在字符串的位置图上，从0跳到n。",
+        code: "def wordBreak(self, s, wordDict):\n    word_set = set(wordDict)\n    n = len(s)\n    dp = [False] * (n + 1)\n    dp[0] = True  # 空串可以被拆分\n    for i in range(1, n + 1):\n        for j in range(i):\n            if dp[j] and s[j:i] in word_set:\n                dp[i] = True\n                break  # 找到一个可行切分即可\n    return dp[n]"
+      },
+      {
+        id: 152,
+        name: "乘积最大子数组",
+        difficulty: "Medium",
+        essence: "乘法的符号翻转效应要求同时维护最大和最小——负数让最小变最大。",
+        analysis: "乘法与加法的本质区别：乘以负数会让最大值变最小值、最小值变最大值。因此每个位置必须同时记录以该位置结尾的最大乘积和最小乘积。当遇到负数时，最大最小发生交换。状态转移：cur_max=max(num, cur_max*num, cur_min*num)，cur_min=min(num, cur_max*num, cur_min*num)。核心洞察：不确定未来符号，就同时保留两种极端信息。",
+        code: "def maxProduct(self, nums):\n    res = max(nums)\n    cur_max, cur_min = 1, 1\n    for num in nums:\n        # 负数会让最大变最小，先暂存\n        tmp = cur_max\n        cur_max = max(num, cur_max * num, cur_min * num)\n        cur_min = min(num, tmp * num, cur_min * num)\n        res = max(res, cur_max)\n    return res"
+      },
+      {
+        id: 416,
+        name: "分割等和子集",
+        difficulty: "Medium",
+        essence: "将数组分成等和两半等价于从数组中选子集凑出sum/2——0-1背包的特例。",
+        analysis: "等和分割意味着每部分之和为sum/2，因此sum必须为偶数。问题转化为：从数组中选若干元素使其和恰好为sum/2，这是经典的0-1背包问题。定义dp[j]表示能否凑出和j，对每个元素num，从大到小更新dp[j]=dp[j] or dp[j-num]（从大到小保证每个元素只用一次）。信息流动方向：每个物品的加入使得可达的金额集合扩大。",
+        code: "def canPartition(self, nums):\n    total = sum(nums)\n    if total % 2:\n        return False\n    target = total // 2\n    dp = [False] * (target + 1)\n    dp[0] = True\n    for num in nums:\n        for j in range(target, num - 1, -1):  # 从大到小，保证每个num只用一次\n            dp[j] = dp[j] or dp[j - num]\n    return dp[target]"
+      },
+      {
+        id: 72,
+        name: "编辑距离",
+        difficulty: "Medium",
+        essence: "两个字符串对齐的最小代价——每个位置的三种操作对应三个方向的信息流入。",
+        analysis: "将word1变成word2，每一步只有三种操作：插入、删除、替换。定义dp[i][j]为word1前i个字符变成word2前j个字符的最小操作数。如果word1[i-1]==word2[j-1]，无需操作；否则取三种操作的最小值+1：dp[i-1][j]+1(删除)、dp[i][j-1]+1(插入)、dp[i-1][j-1]+1(替换)。信息从左、上、左上三个方向流入，本质是二维网格上的最短路径。",
+        code: "def minDistance(self, word1, word2):\n    m, n = len(word1), len(word2)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(m + 1): dp[i][0] = i  # 全删\n    for j in range(n + 1): dp[0][j] = j  # 全插\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if word1[i-1] == word2[j-1]:\n                dp[i][j] = dp[i-1][j-1]  # 匹配，无需操作\n            else:\n                dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])\n    return dp[m][n]"
+      },
+      {
+        id: 5,
+        name: "最长回文子串",
+        difficulty: "Medium",
+        essence: "回文是关于中心对称的结构——从每个中心向两侧扩展，信息由中心向边缘辐射。",
+        analysis: "回文的定义是正读反读相同，这意味着它关于中心对称。有两种中心：单字符（奇数长度）和双字符（偶数长度）。从每个中心向两侧扩展，直到不匹配为止，就能找到以该中心为轴的最长回文。动态规划方法：dp[i][j]表示s[i:j+1]是否回文，dp[i][j]=dp[i+1][j-1]且s[i]==s[j]，信息从短串向长串流动。",
+        code: "def longestPalindrome(self, s):\n    n = len(s)\n    if n < 2:\n        return s\n    start, max_len = 0, 1\n    def expand(l, r):\n        nonlocal start, max_len\n        while l >= 0 and r < n and s[l] == s[r]:\n            if r - l + 1 > max_len:\n                start, max_len = l, r - l + 1\n            l -= 1\n            r += 1\n    for i in range(n):\n        expand(i, i)      # 奇数长度回文\n        expand(i, i + 1)  # 偶数长度回文\n    return s[start:start + max_len]"
+      },
+      {
+        id: 53,
+        name: "最大子数组和",
+        difficulty: "Medium",
+        essence: "连续子数组的最大和——每个位置决定是延续前一段还是重新开始，信息只在正收益时传递。",
+        analysis: "对每个位置，要么把前面的和续上，要么从当前重新开始——取决于前面的累加是否为正收益。dp[i]表示以i结尾的最大子数组和，dp[i]=max(nums[i], dp[i-1]+nums[i])。核心洞察：负累加和是信息的断点，正累加和让信息继续流动。全局最大值在所有dp[i]中取。这就是Kadane算法——信息流动的守门人：只允许正贡献通过。",
+        code: "def maxSubArray(self, nums):\n    cur_max = global_max = nums[0]\n    for num in nums[1:]:\n        # 前面的累加是负收益则丢弃，重新开始\n        cur_max = max(num, cur_max + num)\n        global_max = max(global_max, cur_max)\n    return global_max"
+      },
+      {
+        id: 64,
+        name: "最小路径和",
+        difficulty: "Medium",
+        essence: "网格中只能向右或向下——每个格子的最优解来自上方或左方的信息流入。",
+        analysis: "从左上到右下，每步只能右移或下移，因此到达(i,j)的前一步只能是(i-1,j)或(i,j-1)。dp[i][j]=grid[i][j]+min(dp[i-1][j], dp[i][j-1])，信息从上方和左方流入。第一行和第一列只有单方向信息流入。这是最简单的二维信息流动：两条正交方向的信息在每个格子上汇合取最优。",
+        code: "def minPathSum(self, grid):\n    m, n = len(grid), len(grid[0])\n    dp = [[0] * n for _ in range(m)]\n    dp[0][0] = grid[0][0]\n    for i in range(1, m): dp[i][0] = dp[i-1][0] + grid[i][0]  # 第一列只能从上\n    for j in range(1, n): dp[0][j] = dp[0][j-1] + grid[0][j]  # 第一行只能从左\n    for i in range(1, m):\n        for j in range(1, n):\n            dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1])\n    return dp[m-1][n-1]"
+      },
+      {
+        id: 91,
+        name: "解码方法",
+        difficulty: "Medium",
+        essence: "每个位置可以单独解码或与前一位置组合解码——信息从两个方向流入但必须验证合法性。",
+        analysis: "类似爬楼梯，但加了合法性约束。dp[i]表示前i个字符的解码方式数。s[i-1]非0时可以单独解码（加dp[i-1]），s[i-2:i]在10-26之间时可以组合解码（加dp[i-2]）。信息从dp[i-1]和dp[i-2]两个方向流入，但0的存在使得某些转移非法——0不能单独解码，只能作为10或20的一部分。这展示了信息流动中的条件门控。",
+        code: "def numDecodings(self, s):\n    n = len(s)\n    dp = [0] * (n + 1)\n    dp[0] = 1  # 空串一种解码方式\n    dp[1] = 1 if s[0] != '0' else 0\n    for i in range(2, n + 1):\n        # 单独解码：当前字符非0\n        if s[i-1] != '0':\n            dp[i] += dp[i-1]\n        # 组合解码：前两个字符在10-26之间\n        if 10 <= int(s[i-2:i]) <= 26:\n            dp[i] += dp[i-2]\n    return dp[n]"
+      },
+      {
+        id: 221,
+        name: "最大正方形",
+        difficulty: "Medium",
+        essence: "正方形的边长受限于三个方向的最小值——信息从左、上、左上汇聚取瓶颈。",
+        analysis: "以(i,j)为右下角的最大正方形边长，取决于三个邻居：左、上、左上。为什么取min？因为正方形要求四个角都为1，如果任一方向的正方形更小，当前正方形就无法扩展到更大。dp[i][j]=min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])+1。这是木桶原理的体现：最短的那块板决定了容量。信息从三个方向流入，瓶颈约束决定结果。",
+        code: "def maximalSquare(self, matrix):\n    if not matrix: return 0\n    m, n = len(matrix), len(matrix[0])\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    max_side = 0\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if matrix[i-1][j-1] == '1':\n                # 三个方向的最小值+1，木桶原理\n                dp[i][j] = min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) + 1\n                max_side = max(max_side, dp[i][j])\n    return max_side * max_side"
+      },
+      {
+        id: 279,
+        name: "完全平方数",
+        difficulty: "Medium",
+        essence: "零钱兑换的特例——硬币集合是所有完全平方数，求最少硬币数。",
+        analysis: "与322零钱兑换完全同构，只是硬币变成了1,4,9,16,...这些完全平方数。dp[i]表示凑出i的最少平方数个数，dp[i]=min(dp[i-j*j]+1)对所有j满足j*j<=i。每个完全平方数是一个\"跳跃\"，从i跳到i-j*j。信息从小数向大数流动，完全平方数是允许的跳跃距离。数学上Lagrange四平方定理保证了答案不超过4。",
+        code: "def numSquares(self, n):\n    dp = [float('inf')] * (n + 1)\n    dp[0] = 0\n    for i in range(1, n + 1):\n        j = 1\n        while j * j <= i:\n            dp[i] = min(dp[i], dp[i - j * j] + 1)\n            j += 1\n    return dp[n]"
+      },
+      {
+        id: 10,
+        name: "正则表达式匹配",
+        difficulty: "Hard",
+        essence: "模式中的*使得匹配从线性变为分支——每个*处信息分叉，需要同时考虑\"匹配零次\"和\"匹配多次\"。",
+        analysis: "难点在于*可以匹配零次或多次。定义dp[i][j]为s前i个字符与p前j个字符是否匹配。当p[j-1]=='*'时，有两种选择：匹配零次（跳过x*，dp[i][j]=dp[i][j-2]）或匹配一次以上（要求s[i-1]匹配p[j-2]，dp[i][j]=dp[i-1][j]且s[i-1]匹配p[j-2]）。*的存在让信息流从线性变为分支，但通过记录所有子问题的解，避免了指数级重复。",
+        code: "def isMatch(self, s, p):\n    m, n = len(s), len(p)\n    dp = [[False] * (n + 1) for _ in range(m + 1)]\n    dp[0][0] = True\n    # 初始化：a*b*c*可以匹配空串\n    for j in range(2, n + 1):\n        if p[j-1] == '*':\n            dp[0][j] = dp[0][j-2]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if p[j-1] == '*':\n                # 匹配零次 or 匹配一次以上\n                dp[i][j] = dp[i][j-2] or (dp[i-1][j] and (p[j-2] == s[i-1] or p[j-2] == '.'))\n            elif p[j-1] == '.' or p[j-1] == s[i-1]:\n                dp[i][j] = dp[i-1][j-1]\n    return dp[m][n]"
+      },
+      {
+        id: 32,
+        name: "最长有效括号",
+        difficulty: "Hard",
+        essence: "有效括号是嵌套结构，每个')'必须找到配对的'('——信息在匹配成功时跳跃式传播。",
+        analysis: "定义dp[i]为以s[i]结尾的最长有效括号长度。当s[i]=')'时：如果s[i-1]='('，形成()，dp[i]=dp[i-2]+2；如果s[i-1]=')'，形成))，需要检查s[i-dp[i-1]-1]是否为'('，若是则dp[i]=dp[i-1]+2+dp[i-dp[i-1]-2]。第二种情况的信息跳跃：跳过中间已匹配的部分，去更远处寻找配对的'('。这体现了括号嵌套的递归结构——有效括号内部可以包含更短的有效括号。",
+        code: "def longestValidParentheses(self, s):\n    n = len(s)\n    dp = [0] * n\n    max_len = 0\n    for i in range(1, n):\n        if s[i] == ')':\n            if s[i-1] == '(':  # ...()的情况\n                dp[i] = (dp[i-2] if i >= 2 else 0) + 2\n            elif i - dp[i-1] - 1 >= 0 and s[i - dp[i-1] - 1] == '(':  # ...))的情况\n                dp[i] = dp[i-1] + 2 + (dp[i - dp[i-1] - 2] if i - dp[i-1] >= 2 else 0)\n            max_len = max(max_len, dp[i])\n    return max_len"
+      },
+      {
+        id: 312,
+        name: "戳气球",
+        difficulty: "Hard",
+        essence: "正向思考戳气球导致邻居变化，逆向思考最后戳哪个——信息流动方向反转，问题变简单。",
+        analysis: "正向思考的问题：戳破一个气球后左右邻居变了，子问题不再独立。逆向思维：不问\"先戳哪个\"，而问\"最后戳哪个\"。最后戳的气球i，它的左右邻居就是虚拟边界，收益=nums[left]*nums[i]*nums[right]。定义dp[left][right]为开区间(left,right)内戳破所有气球的最大收益，dp[left][right]=max(dp[left][i]+nums[left]*nums[i]*nums[right]+dp[i][right])。信息从小区间向大区间流动，最后戳的那个气球是区间内信息汇聚的点。",
+        code: "def maxCoins(self, nums):\n    n = len(nums)\n    nums = [1] + nums + [1]  # 添加虚拟边界\n    dp = [[0] * (n + 2) for _ in range(n + 2)]\n    # 区间从短到长\n    for length in range(1, n + 1):\n        for left in range(0, n + 2 - length):\n            right = left + length + 1\n            # 枚举(left,right)中最后戳的气球\n            for i in range(left + 1, right):\n                dp[left][right] = max(\n                    dp[left][right],\n                    nums[left] * nums[i] * nums[right] + dp[left][i] + dp[i][right]\n                )\n    return dp[0][n + 1]"
+      },
+      {
+        id: 62,
+        name: "不同路径",
+        difficulty: "Medium",
+        essence: "每个格子的路径数等于上方格子路径数加左方格子路径数——两条信息流的加法汇合。",
+        analysis: "从左上到右下，只能右移或下移，因此到达(i,j)的路径必然经过(i-1,j)或(i,j-1)。dp[i][j]=dp[i-1][j]+dp[i][j-1]，这是组合数学C(m+n-2,m-1)的动态规划推导。信息从上方和左方流入并相加——加法而非取max，因为这里要计数而非优化。第一行和第一列都只有1条路径，是信息的起点。",
+        code: "def uniquePaths(self, m, n):\n    dp = [1] * n  # 第一行全是1\n    for i in range(1, m):\n        for j in range(1, n):\n            dp[j] += dp[j-1]  # 上方+左方\n    return dp[n-1]"
+      }
+    ]
+  },
+  {
+    category: "区间的增量维护 (滑动窗口)",
+    categoryEssence: "滑动窗口的本质：在区间上维护一个增量变化的状态，窗口滑动时仅增量更新而非重建——O(1)平摊的秘诀。",
+    problems: [
+      {
+        id: 3,
+        name: "无重复字符的最长子串",
+        difficulty: "Medium",
+        essence: "窗口内保持无重复——遇到重复时左边界跳跃式收缩，信息增量更新。",
+        analysis: "维护一个窗口，保证内部无重复字符。右边界不断扩展，当新字符已在窗口内时，左边界跳到该字符上次出现位置的右边。用哈希表记录每个字符的最新位置，实现O(1)的重复检测和左边界跳跃。关键洞察：左边界不需要一步一步收缩，可以直接跳到冲突解决的位置——信息只增不减的维护策略。",
+        code: "def lengthOfLongestSubstring(self, s):\n    last_seen = {}  # 字符 -> 最近出现的位置\n    left = 0\n    max_len = 0\n    for right, ch in enumerate(s):\n        if ch in last_seen and last_seen[ch] >= left:\n            left = last_seen[ch] + 1  # 跳跃收缩\n        last_seen[ch] = right\n        max_len = max(max_len, right - left + 1)\n    return max_len"
+      },
+      {
+        id: 76,
+        name: "最小覆盖子串",
+        difficulty: "Hard",
+        essence: "双指针维护一个满足条件的窗口——右扩至满足，左缩至不满足，在临界点记录答案。",
+        analysis: "在s中找包含t所有字符的最短子串。维护两个指针和窗口内的字符计数。右指针扩展直到窗口满足条件，然后左指针收缩直到窗口恰好不满足条件，在收缩过程中记录最小窗口。这种\"右扩满足、左缩至恰好不满足\"的模式是滑动窗口求解优化问题（最小长度）的标准范式。关键是用计数器增量更新，而非每次重建。",
+        code: "def minWindow(self, s, t):\n    from collections import Counter\n    need = Counter(t)\n    missing = len(t)  # 还缺的字符数\n    left = 0\n    start, min_len = 0, float('inf')\n    for right, ch in enumerate(s):\n        if need[ch] > 0:\n            missing -= 1\n        need[ch] -= 1\n        while missing == 0:  # 窗口满足条件\n            if right - left + 1 < min_len:\n                start, min_len = left, right - left + 1\n            if need[s[left]] == 0:  # 左边界字符是必需的\n                missing += 1\n            need[s[left]] += 1\n            left += 1\n    return s[start:start+min_len] if min_len != float('inf') else ''"
+      },
+      {
+        id: 438,
+        name: "找到字符串中所有字母异位词",
+        difficulty: "Medium",
+        essence: "固定长度窗口内字符频率匹配——滑动窗口的等式判断问题。",
+        analysis: "异位词即字符频率相同。窗口长度固定为len(p)，每次滑动时：左边移出一个字符，右边移入一个字符，增量更新频率计数。维护一个match计数表示匹配的字符种类数，每次只需检查两个字符的频率变化对match的影响。这就是滑动窗口维护增量信息的精髓：窗口滑动时只改变两个位置，不必重新计算整个窗口。",
+        code: "def findAnagrams(self, s, p):\n    from collections import Counter\n    need = Counter(p)\n    window = Counter()\n    res = []\n    left = 0\n    for right, ch in enumerate(s):\n        window[ch] += 1\n        if right - left + 1 > len(p):  # 窗口超长，左边界收缩\n            window[s[left]] -= 1\n            if window[s[left]] == 0:\n                del window[s[left]]\n            left += 1\n        if window == need:  # 频率完全匹配\n            res.append(left)\n    return res"
+      },
+      {
+        id: 239,
+        name: "滑动窗口最大值",
+        difficulty: "Hard",
+        essence: "窗口内维护一个递减序列——新元素淘汰所有比它小的旧元素，因为它们永远不可能成为最大值。",
+        analysis: "朴素方法每次遍历窗口找最大值是O(nk)。关键洞察：如果一个新元素比窗口内某些旧元素大，那些旧元素永远不可能成为未来窗口的最大值（它们比新元素小且比新元素先离开窗口）。因此维护一个单调递减的双端队列：新元素从右端入队时，弹出所有比它小的元素；左端弹出超出窗口的元素。队首永远是当前窗口最大值。这就是单调队列——用单调性淘汰无用信息。",
+        code: "def maxSlidingWindow(self, nums, k):\n    from collections import deque\n    dq = deque()  # 存下标，保持对应值单调递减\n    res = []\n    for i, num in enumerate(nums):\n        # 淘汰比当前小的——它们永远不会是最大值\n        while dq and nums[dq[-1]] < num:\n            dq.pop()\n        dq.append(i)\n        # 左端超出窗口则移除\n        if dq[0] <= i - k:\n            dq.popleft()\n        if i >= k - 1:\n            res.append(nums[dq[0]])  # 队首即最大值\n    return res"
+      },
+      {
+        id: 567,
+        name: "字符串的排列",
+        difficulty: "Medium",
+        essence: "固定长度窗口内字符频率匹配——与438同构，判断是否存在而非找所有位置。",
+        analysis: "与438题找到字符串中所有字母异位词完全同构，只是从\"找所有位置\"变成\"判断是否存在\"。维护长度为len(s2)的滑动窗口在s1上移动，增量更新字符频率计数。一旦窗口内频率与s2匹配就返回True。滑动窗口处理固定长度区间问题的模式：窗口大小固定，每次滑动增减一个字符，O(1)更新状态。",
+        code: "def checkInclusion(self, s1, s2):\n    from collections import Counter\n    need = Counter(s1)\n    window = Counter()\n    left = 0\n    for right, ch in enumerate(s2):\n        window[ch] += 1\n        if right - left + 1 > len(s1):\n            window[s2[left]] -= 1\n            if window[s2[left]] == 0:\n                del window[s2[left]]\n            left += 1\n        if right - left + 1 == len(s1) and window == need:\n            return True\n    return False"
+      }
+    ]
+  },
+  {
+    category: "对称与夹逼 (双指针)",
+    categoryEssence: "双指针利用有序性或对称性，从两端或同端向中间逼近——将O(n²)的枚举压缩为O(n)的夹逼搜索。",
+    problems: [
+      {
+        id: 11,
+        name: "盛最多水的容器",
+        difficulty: "Medium",
+        essence: "面积由短板决定——移动长板不可能增大面积，只有移动短板才有可能找到更大值。",
+        analysis: "面积=min(height[left], height[right])*(right-left)。从两端开始，每次移动较短的板。为什么？因为面积受限于短板，如果移动长板，宽度减小而高度不会超过短板，面积一定减小。只有移动短板，才有可能遇到更高的板使面积增大。这就是夹逼搜索的核心：每次排除不可能更优的解，缩小搜索空间。信息从两端向中间汇聚。",
+        code: "def maxArea(self, height):\n    left, right = 0, len(height) - 1\n    max_water = 0\n    while left < right:\n        max_water = max(max_water, min(height[left], height[right]) * (right - left))\n        if height[left] < height[right]:\n            left += 1   # 移动短板\n        else:\n            right -= 1\n    return max_water"
+      },
+      {
+        id: 15,
+        name: "三数之和",
+        difficulty: "Medium",
+        essence: "排序后固定一个数，剩下两个数用双指针夹逼——有序性让枚举从O(n³)降到O(n²)。",
+        analysis: "三数之和为0，排序后固定第一个数a，在a右侧用双指针找b+c=-a。左指针从a右边开始，右指针从末尾开始，根据三数之和与0的关系移动指针。排序使得我们可以利用单调性：和太大就右指针左移，和太小就左指针右移。去重：相同的a跳过，找到一组解后跳过相同的b和c。有序性是双指针的前提条件。",
+        code: "def threeSum(self, nums):\n    nums.sort()\n    res = []\n    n = len(nums)\n    for i in range(n - 2):\n        if i > 0 and nums[i] == nums[i-1]:\n            continue  # 跳过重复的a\n        left, right = i + 1, n - 1\n        while left < right:\n            s = nums[i] + nums[left] + nums[right]\n            if s < 0:\n                left += 1\n            elif s > 0:\n                right -= 1\n            else:\n                res.append([nums[i], nums[left], nums[right]])\n                while left < right and nums[left] == nums[left+1]: left += 1\n                while left < right and nums[right] == nums[right-1]: right -= 1\n                left += 1\n                right -= 1\n    return res"
+      },
+      {
+        id: 42,
+        name: "接雨水",
+        difficulty: "Hard",
+        essence: "每个位置能接的雨水由其左右最高柱的较小值决定——信息从两端向中间汇聚取瓶颈。",
+        analysis: "位置i能接的雨水=min(左边最高, 右边最高)-height[i]。关键洞察：不需要同时知道左右最高，只需要知道较矮的那个。双指针从两端向中间移动，维护left_max和right_max。如果left_max<right_max，则左边指针处的接水量由left_max决定（因为右边一定有更高的柱子挡住），反之亦然。夹逼过程中每次处理信息确定的那一侧——这是瓶颈决定的夹逼策略。",
+        code: "def trap(self, height):\n    left, right = 0, len(height) - 1\n    left_max, right_max = 0, 0\n    water = 0\n    while left < right:\n        if height[left] < height[right]:\n            left_max = max(left_max, height[left])\n            water += left_max - height[left]  # 左边确定，由left_max决定\n            left += 1\n        else:\n            right_max = max(right_max, height[right])\n            water += right_max - height[right]  # 右边确定，由right_max决定\n            right -= 1\n    return water"
+      },
+      {
+        id: 283,
+        name: "移动零",
+        difficulty: "Easy",
+        essence: "同向双指针——快指针找非零元素，慢指针指向待填充位置，信息从快指针向慢指针传递。",
+        analysis: "将所有零移到末尾等价于将所有非零元素保持顺序移到前面。用快慢指针：快指针扫描数组找非零元素，慢指针指向下一个非零元素应放的位置。每次快指针找到非零元素就与慢指针位置交换。这样非零元素的相对顺序不变，零自然被移到末尾。信息流动方向：快指针将非零信息写入慢指针位置。",
+        code: "def moveZeroes(self, nums):\n    slow = 0  # 下一个非零元素应放的位置\n    for fast in range(len(nums)):\n        if nums[fast] != 0:\n            nums[slow], nums[fast] = nums[fast], nums[slow]\n            slow += 1"
+      },
+      {
+        id: 26,
+        name: "删除有序数组中的重复项",
+        difficulty: "Easy",
+        essence: "同向双指针在有序数组上去重——快指针找新元素，慢指针写不重复序列。",
+        analysis: "数组有序意味着重复元素必然相邻。快指针扫描找与慢指针位置不同的元素（即新元素），找到后慢指针前进一步写入。慢指针维护的是已确认无重复的部分的末尾。有序性保证了重复元素的连续性，使得一次遍历即可完成去重。",
+        code: "def removeDuplicates(self, nums):\n    if not nums: return 0\n    slow = 0  # 无重复部分的末尾\n    for fast in range(1, len(nums)):\n        if nums[fast] != nums[slow]:  # 找到新元素\n            slow += 1\n            nums[slow] = nums[fast]\n    return slow + 1"
+      },
+      {
+        id: 27,
+        name: "移除元素",
+        difficulty: "Easy",
+        essence: "同向双指针过滤——快指针找保留的元素，慢指针写入。",
+        analysis: "与283移动零完全同构。快指针扫描数组，当元素不等于val时写入慢指针位置。慢指针始终指向结果数组的下一个写入位置。最终慢指针的值就是结果长度。信息流动：快指针将有效信息传递给慢指针。",
+        code: "def removeElement(self, nums, val):\n    slow = 0\n    for fast in range(len(nums)):\n        if nums[fast] != val:\n            nums[slow] = nums[fast]\n            slow += 1\n    return slow"
+      },
+      {
+        id: 167,
+        name: "两数之和II",
+        difficulty: "Medium",
+        essence: "有序数组的双指针夹逼——和太大右缩，和太小左扩，利用单调性排除无效搜索。",
+        analysis: "数组已排序，从两端夹逼。如果两数之和>target，右指针左移（减小和）；如果<target，左指针右移（增大和）。排序带来的单调性使得每次移动都能排除一整块搜索空间。与11题容器盛水相同的夹逼思想：利用有序性，每次移动可以确定性地排除不可能的解。如果没有排序则需要用哈希表，排序后双指针更优雅。",
+        code: "def twoSum(self, numbers, target):\n    left, right = 0, len(numbers) - 1\n    while left < right:\n        s = numbers[left] + numbers[right]\n        if s == target:\n            return [left + 1, right + 1]  # 1-indexed\n        elif s < target:\n            left += 1\n        else:\n            right -= 1"
+      }
+    ]
+  },
+  {
+    category: "单调性 (单调栈/队列)",
+    categoryEssence: "单调栈的本质：维护一个单调序列，用单调性淘汰\"永远不可能成为答案\"的元素——新元素的到来是旧元素命运的裁决。",
+    problems: [
+      {
+        id: 84,
+        name: "柱状图中最大的矩形",
+        difficulty: "Hard",
+        essence: "矩形面积=高×宽，高受最矮柱子限制——每根柱子的命运由它两侧更矮柱子的位置决定。",
+        analysis: "对每根柱子i，以它为高的最大矩形宽度是从左边第一个更矮柱子到右边第一个更矮柱子之间的距离。维护单调递增栈：当新柱子更矮时，栈顶柱子的右边界确定了，左边界是栈中前一个元素。此时可以计算以栈顶柱子为高的矩形面积。关键洞察：一根柱子的命运（最大矩形）由两侧更矮的柱子裁决——一旦遇到更矮的柱子，更高的柱子就再也无法向那个方向扩展。",
+        code: "def largestRectangleArea(self, heights):\n    stack = []  # 单调递增栈，存下标\n    max_area = 0\n    heights = heights + [0]  # 哨兵，确保所有柱子都被处理\n    for i, h in enumerate(heights):\n        while stack and heights[stack[-1]] > h:\n            height = heights[stack.pop()]\n            width = i if not stack else i - stack[-1] - 1\n            max_area = max(max_area, height * width)\n        stack.append(i)\n    return max_area"
+      },
+      {
+        id: 85,
+        name: "最大矩形",
+        difficulty: "Hard",
+        essence: "逐行将二维问题转化为一维柱状图——信息从上一行向下一行流动，每行调用84题。",
+        analysis: "将矩阵的每一行视为柱状图的底，向上连续的1就是柱子的高度。对每一行计算heights数组（上连续1的个数），然后在该柱状图上调用84题求最大矩形。信息从上到下流动：上一行的heights加上当前行的信息（遇到'1'则+1，遇到'0'则归零）得到当前行的heights。二维问题降为一维问题的关键：找到正确的信息传递方式，让每行的子问题独立可解。",
+        code: "def maximalRectangle(self, matrix):\n    if not matrix: return 0\n    n = len(matrix[0])\n    heights = [0] * n\n    max_area = 0\n    for row in matrix:\n        for j in range(n):\n            heights[j] = heights[j] + 1 if row[j] == '1' else 0\n        # 84题的逻辑\n        stack = []\n        for i, h in enumerate(heights + [0]):\n            while stack and heights[stack[-1]] > h:\n                height = heights[stack.pop()]\n                width = i if not stack else i - stack[-1] - 1\n                max_area = max(max_area, height * width)\n            stack.append(i)\n    return max_area"
+      },
+      {
+        id: 155,
+        name: "最小栈",
+        difficulty: "Medium",
+        essence: "辅助栈同步跟踪最小值——每次push/pop时，最小值信息与主栈同步维护。",
+        analysis: "需要在O(1)时间内获取最小值。核心思想：每个元素入栈时，同步记录当前栈的最小值到辅助栈。当主栈pop时，辅助栈也pop，最小值自然恢复到之前的状态。两个栈完全同步，辅助栈在每个位置记录\"到此为止的最小值\"。信息同步维护而非事后计算——这就是增量维护的策略。",
+        code: "class MinStack:\n    def __init__(self):\n        self.stack = []\n        self.min_stack = []  # 同步维护每个位置的最小值\n\n    def push(self, val):\n        self.stack.append(val)\n        self.min_stack.append(min(val, self.min_stack[-1] if self.min_stack else val))\n\n    def pop(self):\n        self.stack.pop()\n        self.min_stack.pop()\n\n    def top(self):\n        return self.stack[-1]\n\n    def getMin(self):\n        return self.min_stack[-1]"
+      },
+      {
+        id: 739,
+        name: "每日温度",
+        difficulty: "Medium",
+        essence: "每个温度等待更高温度出现——单调递减栈维护\"还在等待\"的温度，新温度裁决栈中旧温度的命运。",
+        analysis: "对每个温度，找右侧第一个更高温度的距离。维护一个单调递减栈（存下标），栈中元素都是\"还在等待更高温度\"的。当新温度更高时，栈顶元素的答案确定了——等待的天数就是当前下标减去栈顶下标。这就是单调栈的核心模式：旧元素等待某个条件，新元素到来时裁决旧元素是否能出栈。",
+        code: "def dailyTemperatures(self, temperatures):\n    n = len(temperatures)\n    res = [0] * n\n    stack = []  # 单调递减栈，存下标\n    for i, t in enumerate(temperatures):\n        while stack and temperatures[stack[-1]] < t:\n            prev = stack.pop()\n            res[prev] = i - prev  # 等待天数确定\n        stack.append(i)\n    return res"
+      },
+      {
+        id: 496,
+        name: "下一个更大元素I",
+        difficulty: "Easy",
+        essence: "在nums2上用单调栈预处理所有下一个更大元素，再通过哈希表查询nums1所需的结果。",
+        analysis: "nums1是nums2的子集，只需在nums2上求出每个元素的下一个更大元素，然后查询nums1中元素对应的结果。对nums2从右到左维护单调递减栈：栈中保存右边的候选更大元素，新元素入栈前弹出所有比它小的（它们不可能成为更左边元素的下一个更大元素）。哈希表记录映射关系。本质与739题完全相同，只是查询方式不同。",
+        code: "def nextGreaterElement(self, nums1, nums2):\n    next_greater = {}\n    stack = []  # 单调递减栈\n    for num in nums2:\n        while stack and stack[-1] < num:\n            next_greater[stack.pop()] = num  # 栈顶的下一个更大元素是num\n        stack.append(num)\n    return [next_greater.get(n, -1) for n in nums1]"
+      }
+    ]
+  },
+  {
+    category: "决策树的穷举 (回溯)",
+    categoryEssence: "回溯的本质：在决策树上做深度优先搜索，每个节点是一个选择，走到底后撤销回溯——穷举所有可能路径的艺术。",
+    problems: [
+      {
+        id: 46,
+        name: "全排列",
+        difficulty: "Medium",
+        essence: "每个位置选择一个未使用的元素——决策树的每一层是一个位置，每个分支是一个可用选择。",
+        analysis: "排列是所有元素的所有顺序。决策树：第1层选第1个位置的元素（n个选择），第2层选第2个位置的元素（n-1个选择），依此类推。用used数组标记已选元素避免重复选择。回溯时撤销选择（从path弹出、used复位），恢复到上一层的状态。这是最纯粹的回溯：每层做一个选择，走到底收集结果，撤销后尝试其他分支。",
+        code: "def permute(self, nums):\n    res = []\n    def backtrack(path, used):\n        if len(path) == len(nums):\n            res.append(path[:])\n            return\n        for i in range(len(nums)):\n            if used[i]:\n                continue\n            used[i] = True\n            path.append(nums[i])\n            backtrack(path, used)\n            path.pop()       # 撤销选择\n            used[i] = False  # 撤销标记\n    backtrack([], [False] * len(nums))\n    return res"
+      },
+      {
+        id: 78,
+        name: "子集",
+        difficulty: "Medium",
+        essence: "每个元素选或不选——决策树的每一层是一个元素，两个分支：放入子集或不放入。",
+        analysis: "子集是所有元素的选与不选的组合。决策树有n层，每层对应一个元素，两个分支：选或不选。到达叶节点时收集一个子集。另一种视角：在位置i开始，可以选择nums[i]加入子集并递归处理i+1，也可以跳过——但这会产生重复。标准做法是按起始位置遍历，每层决定从哪个元素开始选，保证不重复不遗漏。",
+        code: "def subsets(self, nums):\n    res = []\n    def backtrack(start, path):\n        res.append(path[:])  # 每个节点都是一个有效子集\n        for i in range(start, len(nums)):\n            path.append(nums[i])\n            backtrack(i + 1, path)  # 从i+1开始，避免重复\n            path.pop()\n    backtrack(0, [])\n    return res"
+      },
+      {
+        id: 39,
+        name: "组合总和",
+        difficulty: "Medium",
+        essence: "无限制地选取元素使和为target——决策树每层选一个数，允许重复选择，通过start控制不回退。",
+        analysis: "candidates中的数字可以无限制重复使用。决策树：每层选择一个候选数字，目标值减去该数字后递归。关键：用start参数控制只能从当前位置及之后选择，避免产生重复组合（如[2,3]和[3,2]）。当target减到0时找到一个解，减到负数时剪枝。允许重复选择只需传入i而非i+1作为下一层的start。",
+        code: "def combinationSum(self, candidates, target):\n    res = []\n    def backtrack(start, path, remain):\n        if remain == 0:\n            res.append(path[:])\n            return\n        if remain < 0:\n            return  # 剪枝\n        for i in range(start, len(candidates)):\n            path.append(candidates[i])\n            backtrack(i, path, remain - candidates[i])  # 传i而非i+1，允许重复\n            path.pop()\n    backtrack(0, [], target)\n    return res"
+      },
+      {
+        id: 22,
+        name: "括号生成",
+        difficulty: "Medium",
+        essence: "构建合法括号序列的过程——左括号随时可加，右括号只能在左括号有余量时加。",
+        analysis: "n对括号的合法序列必须满足：任意前缀中左括号数>=右括号数，且最终左右各n个。决策树每层选择放左括号或右括号。约束条件：左括号数<n时可以放左，右括号数<左括号数时可以放右。这个约束就是合法性的第一性原理——保证了在构建过程中序列始终是\"可补救的\"。信息通过left_count和right_count向下传递。",
+        code: "def generateParenthesis(self, n):\n    res = []\n    def backtrack(path, left, right):\n        if len(path) == 2 * n:\n            res.append(path)\n            return\n        if left < n:\n            backtrack(path + '(', left + 1, right)   # 随时可加左括号\n        if right < left:\n            backtrack(path + ')', left, right + 1)   # 右括号不能超过左括号\n    backtrack('', 0, 0)\n    return res"
+      },
+      {
+        id: 17,
+        name: "电话号码的字母组合",
+        difficulty: "Medium",
+        essence: "每个数字对应多个字母——决策树每层选一个字母，穷举所有路径的组合。",
+        analysis: "每个数字映射到3-4个字母，输出所有可能的字母组合。决策树：第i层对应第i个数字，每个分支选择该数字对应的一个字母。树的深度=数字个数，每层分支数=对应字母数。用递归或迭代穷举所有路径。这是最简单的组合型回溯：没有约束条件，纯穷举。",
+        code: "def letterCombinations(self, digits):\n    if not digits:\n        return []\n    mapping = {'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'}\n    res = []\n    def backtrack(idx, path):\n        if idx == len(digits):\n            res.append(path)\n            return\n        for ch in mapping[digits[idx]]:\n            backtrack(idx + 1, path + ch)\n    backtrack(0, '')\n    return res"
+      },
+      {
+        id: 79,
+        name: "单词搜索",
+        difficulty: "Medium",
+        essence: "在网格上搜索路径——每个位置决定走向哪个邻居，走过的格子不能重走。",
+        analysis: "在二维网格中搜索字符串，可以从任意位置开始，每次移动到相邻格子。决策树：当前位置选择上下左右四个方向之一。约束：不能越界、不能走已走过的格子、当前格子字符必须匹配。用visited数组或原地修改标记已访问格子，回溯时恢复。信息传递：当前匹配到word的第几个字符+当前位置坐标。剪枝：不匹配就立即回溯。",
+        code: "def exist(self, board, word):\n    m, n = len(board), len(board[0])\n    def dfs(i, j, k):\n        if k == len(word):\n            return True\n        if i < 0 or i >= m or j < 0 or j >= n or board[i][j] != word[k]:\n            return False\n        tmp, board[i][j] = board[i][j], '#'  # 标记已访问\n        found = (dfs(i+1,j,k+1) or dfs(i-1,j,k+1) or\n                 dfs(i,j+1,k+1) or dfs(i,j-1,k+1))\n        board[i][j] = tmp  # 恢复\n        return found\n    for i in range(m):\n        for j in range(n):\n            if dfs(i, j, 0):\n                return True\n    return False"
+      },
+      {
+        id: 51,
+        name: "N皇后",
+        difficulty: "Hard",
+        essence: "每行放一个皇后，约束来自列和对角线——决策树的约束随深度累积，需要高效检测冲突。",
+        analysis: "n×n棋盘放n个皇后，任意两个不能同行同列同对角线。按行放置（每行恰好一个皇后），决策树每层对应一行，每个分支是选哪一列。约束检测：用三个集合记录已占用的列、主对角线(row-col相同)、副对角线(row+col相同)。对角线的统一标识是关键洞察：同一主对角线上row-col为常数，同一副对角线上row+col为常数。约束集随深度增长，回溯时撤销。",
+        code: "def solveNQueens(self, n):\n    res = []\n    cols, diag1, diag2 = set(), set(), set()  # 列、主对角线、副对角线\n    def backtrack(row, path):\n        if row == n:\n            res.append(path[:])\n            return\n        for col in range(n):\n            if col in cols or (row - col) in diag1 or (row + col) in diag2:\n                continue  # 冲突检测\n            cols.add(col); diag1.add(row-col); diag2.add(row+col)\n            path.append('.' * col + 'Q' + '.' * (n-col-1))\n            backtrack(row + 1, path)\n            path.pop()\n            cols.remove(col); diag1.remove(row-col); diag2.remove(row+col)\n    backtrack(0, [])\n    return res"
+      },
+      {
+        id: 77,
+        name: "组合",
+        difficulty: "Medium",
+        essence: "从1到n中选k个数——决策树每层选一个数，通过start参数保证递增顺序避免重复。",
+        analysis: "从[1,n]中选k个数的所有组合。决策树：每层选择一个数，必须比之前选的数大（通过start参数保证），这样自然避免了重复组合。当path长度为k时收集结果。与78题子集的区别：子集收集所有长度的组合，这里只收集长度为k的。当剩余元素不够填满path时可以剪枝优化：还需要选k-len(path)个元素，所以i的上界是n-(k-len(path))+1。",
+        code: "def combine(self, n, k):\n    res = []\n    def backtrack(start, path):\n        if len(path) == k:\n            res.append(path[:])\n            return\n        # 剪枝：还需要need个元素，i最多到n-need+1\n        need = k - len(path)\n        for i in range(start, n - need + 2):\n            path.append(i)\n            backtrack(i + 1, path)\n            path.pop()\n    backtrack(1, [])\n    return res"
+      },
+      {
+        id: 40,
+        name: "组合总和II",
+        difficulty: "Medium",
+        essence: "39题加去重约束——同一位置的数字不能重复使用，相同数字的组合不能重复出现。",
+        analysis: "与39题的区别：每个数字只能用一次（传i+1而非i），candidates中可能有重复数字导致结果重复。去重关键：排序后，同一层中如果当前数字与前一个相同且前一个没被使用过，则跳过——因为前一个数字的分支已经包含了当前数字的所有组合。这个\"同层去重\"是回溯去重的通用模式：排序+比较前一个元素+used标记。",
+        code: "def combinationSum2(self, candidates, target):\n    candidates.sort()  # 排序是去重的前提\n    res = []\n    def backtrack(start, path, remain):\n        if remain == 0:\n            res.append(path[:])\n            return\n        if remain < 0:\n            return\n        for i in range(start, len(candidates)):\n            if i > start and candidates[i] == candidates[i-1]:\n                continue  # 同层去重：相同数字只选第一个\n            path.append(candidates[i])\n            backtrack(i + 1, path, remain - candidates[i])  # i+1不重复使用\n            path.pop()\n    backtrack(0, [], target)\n    return res"
+      },
+      {
+        id: 47,
+        name: "全排列II",
+        difficulty: "Medium",
+        essence: "46题加去重——含重复元素的排列去重，相同元素在同一层只选一次。",
+        analysis: "与46题的区别：nums中有重复元素，需要避免生成重复排列。去重策略：排序后，同一层中如果当前元素与前一个相同且前一个未被使用（used[i-1]==False），则跳过。为什么检查used[i-1]==False？因为前一个相同元素如果正在使用中（在path里），说明是不同位置的选择，是合法的；如果已回溯释放（不在path里），说明同一位置的相同选择已经穷举过了，再选会重复。这是回溯去重的精髓：区分\"同一层\"和\"不同层\"的相同元素。",
+        code: "def permuteUnique(self, nums):\n    nums.sort()  # 排序使相同元素相邻\n    res = []\n    used = [False] * len(nums)\n    def backtrack(path):\n        if len(path) == len(nums):\n            res.append(path[:])\n            return\n        for i in range(len(nums)):\n            if used[i]:\n                continue\n            # 同层去重：与前一个相同且前一个未被使用\n            if i > 0 and nums[i] == nums[i-1] and not used[i-1]:\n                continue\n            used[i] = True\n            path.append(nums[i])\n            backtrack(path)\n            path.pop()\n            used[i] = False\n    backtrack([])\n    return res"
+      }
+    ]
+  }
+];
+
+</script>
+<script>
+const data_connectivity_graph = [
+  {
+    category: "连通性的探索 (图遍历/并查集)",
+    categoryEssence: "图的核心问题是连通性——两点之间是否存在路径，而遍历和并查集是回答这一问题的两种基本方式：遍历从一点出发探索所有可达点，并查集从全局视角维护连通分量的合并与查询。",
+    problems: [
+      {
+        id: 200,
+        name: "岛屿数量",
+        difficulty: "Medium",
+        essence: "网格中的连通分量计数：每次发现未访问的陆地，就是一个新岛屿的起点，BFS/DFS将整块连通陆地标记为已访问。",
+        analysis: "从第一性原理看，'岛屿'本质上是网格图中的连通分量。一块陆地属于同一岛屿，当且仅当它与岛屿中某块陆地通过上下左右相连。因此，遍历整个网格，每遇到一块未访问的陆地，就意味着发现了一个新的连通分量（岛屿），然后用DFS或BFS将与之相连的所有陆地标记为已访问。时间复杂度O(mn)，每个格子最多访问一次。",
+        code: "def numIslands(self, grid):\n    if not grid:\n        return 0\n    m, n = len(grid), len(grid[0])\n    count = 0\n    def dfs(i, j):\n        # 边界检查或遇到水，停止蔓延\n        if i < 0 or i >= m or j < 0 or j >= n or grid[i][j] == '0':\n            return\n        grid[i][j] = '0'  # 标记为已访问（沉岛）\n        dfs(i+1, j)\n        dfs(i-1, j)\n        dfs(i, j+1)\n        dfs(i, j-1)\n    for i in range(m):\n        for j in range(n):\n            if grid[i][j] == '1':  # 发现新岛屿\n                count += 1\n                dfs(i, j)  # 淹没整块连通陆地\n    return count"
+      },
+      {
+        id: 994,
+        name: "腐烂的橘子",
+        difficulty: "Medium",
+        essence: "多源BFS的最短传播距离：所有腐烂橘子同时向外扩散，每分钟扩散一层，求最后一个新鲜橘子被感染的时间。",
+        analysis: "从第一性原理看，'腐烂'是一个在网格图上的波前传播过程。所有初始腐烂橘子同时作为BFS的起点，每一轮BFS代表一分钟过去。这本质上是多源最短路径问题——求每个新鲜橘子到最近腐烂橘子的距离，答案就是最大距离。如果BFS结束后仍有新鲜橘子，说明它被隔离，返回-1。关键认知：多源BFS等价于在虚拟源点与所有初始源点之间加零权边后做单源BFS。",
+        code: "def orangesRotting(self, grid):\n    m, n = len(grid), len(grid[0])\n    queue = deque()\n    fresh = 0\n    # 收集所有初始腐烂橘子作为多源BFS起点\n    for i in range(m):\n        for j in range(n):\n            if grid[i][j] == 2:\n                queue.append((i, j))\n            elif grid[i][j] == 1:\n                fresh += 1\n    minutes = 0\n    while queue and fresh > 0:\n        # 每层BFS代表一分钟\n        for _ in range(len(queue)):\n            i, j = queue.popleft()\n            for di, dj in [(1,0),(-1,0),(0,1),(0,-1)]:\n                ni, nj = i+di, j+dj\n                if 0 <= ni < m and 0 <= nj < n and grid[ni][nj] == 1:\n                    grid[ni][nj] = 2  # 新鲜变腐烂\n                    fresh -= 1\n                    queue.append((ni, nj))\n        minutes += 1\n    return minutes if fresh == 0 else -1"
+      },
+      {
+        id: 207,
+        name: "课程表",
+        difficulty: "Medium",
+        essence: "有向图中是否存在环：课程依赖构成有向图，能完成所有课程等价于图中无环（是DAG）。",
+        analysis: "从第一性原理看，'能否完成所有课程'等价于'依赖图是否是有向无环图(DAG)'。有环意味着存在循环依赖，不可能完成。检测有向图环有两种基本方法：拓扑排序（BFS，不断删除入度为0的节点，若最后删不完则有环）和DFS三色标记法。拓扑排序更直观：入度为0的课没有前置依赖，可以先修，修完后它指向的课入度减1，若变为0则也可修了。这本质是因果链的逐步消解。",
+        code: "def canFinish(self, numCourses, prerequisites):\n    # 构建邻接表和入度数组\n    graph = defaultdict(list)\n    indegree = [0] * numCourses\n    for course, prereq in prerequisites:\n        graph[prereq].append(course)\n        indegree[course] += 1\n    # 所有入度为0的节点入队（无前置依赖，可先修）\n    queue = deque([i for i in range(numCourses) if indegree[i] == 0])\n    count = 0\n    while queue:\n        node = queue.popleft()\n        count += 1\n        for neighbor in graph[node]:\n            indegree[neighbor] -= 1  # 前置课程已修，入度减1\n            if indegree[neighbor] == 0:\n                queue.append(neighbor)\n    # 能修完所有课=拓扑排序包含所有节点=无环\n    return count == numCourses"
+      },
+      {
+        id: 210,
+        name: "课程表II",
+        difficulty: "Medium",
+        essence: "输出拓扑排序的具体序列：在207题基础上不仅判断是否有环，还要记录删除节点的顺序。",
+        analysis: "与207题完全相同的因果链消解过程，只是需要记录节点被处理的顺序。拓扑排序的物理含义是：任何一条边(u,v)中，u一定排在v前面，因为u是v的前置。BFS拓扑排序每次取入度为0的节点，天然保证了这个偏序关系。若最终序列长度不足节点总数，说明有环无法完成排序。",
+        code: "def findOrder(self, numCourses, prerequisites):\n    graph = defaultdict(list)\n    indegree = [0] * numCourses\n    for course, prereq in prerequisites:\n        graph[prereq].append(course)\n        indegree[course] += 1\n    queue = deque([i for i in range(numCourses) if indegree[i] == 0])\n    order = []\n    while queue:\n        node = queue.popleft()\n        order.append(node)  # 记录拓扑顺序\n        for neighbor in graph[node]:\n            indegree[neighbor] -= 1\n            if indegree[neighbor] == 0:\n                queue.append(neighbor)\n    return order if len(order) == numCourses else []"
+      },
+      {
+        id: 133,
+        name: "克隆图",
+        difficulty: "Medium",
+        essence: "图的深拷贝：遍历原图的同时创建新节点，用哈希表维护旧节点到新节点的映射以处理引用关系。",
+        analysis: "从第一性原理看，克隆图的本质困难在于图有环和共享引用——两个节点可能互相指向，或多个节点指向同一邻居。如果不用映射表记录已创建的新节点，就会无限递归或创建重复节点。解决方案：用字典{旧节点:新节点}保证每个旧节点只创建一次新节点。BFS/DFS遍历原图，每遇到一个旧节点就创建对应新节点并复制邻居列表。这是'遍历时同步构建'的经典模式。",
+        code: "def cloneGraph(self, node):\n    if not node:\n        return None\n    visited = {}  # 旧节点 -> 新节点\n    def dfs(n):\n        if n in visited:\n            return visited[n]\n        # 创建新节点\n        clone = Node(n.val)\n        visited[n] = clone\n        # 递归克隆所有邻居\n        for neighbor in n.neighbors:\n            clone.neighbors.append(dfs(neighbor))\n        return clone\n    return dfs(node)"
+      },
+      {
+        id: 130,
+        name: "被围绕的区域",
+        difficulty: "Medium",
+        essence: "只有与边界相连的'O'不会被包围：从边界出发的BFS/DFS标记所有不被包围的'O'，剩下的全变'X'。",
+        analysis: "从第一性原理看，'被围绕'的定义是：一个'O'区域如果完全不与边界接触，就被'X'完全包围。反过来，不被围绕的'O'一定与边界上的'O'连通。因此逆向思维：从四条边界的所有'O'出发做BFS/DFS，标记所有与之连通的'O'为'安全'。最后遍历整个矩阵，安全的'O'保留，其余'O'变为'X'。这种'反向标记'比'正向判断每个区域是否被包围'简洁得多。",
+        code: "def solve(self, board):\n    if not board:\n        return\n    m, n = len(board), len(board[0])\n    def dfs(i, j):\n        if i < 0 or i >= m or j < 0 or j >= n or board[i][j] != 'O':\n            return\n        board[i][j] = 'S'  # 标记为安全（与边界连通）\n        dfs(i+1, j)\n        dfs(i-1, j)\n        dfs(i, j+1)\n        dfs(i, j-1)\n    # 从边界所有'O'出发，标记安全区域\n    for i in range(m):\n        dfs(i, 0)\n        dfs(i, n-1)\n    for j in range(n):\n        dfs(0, j)\n        dfs(m-1, j)\n    # 安全员留，其余'O'变'X'\n    for i in range(m):\n        for j in range(n):\n            if board[i][j] == 'O':\n                board[i][j] = 'X'\n            elif board[i][j] == 'S':\n                board[i][j] = 'O'"
+      },
+      {
+        id: 399,
+        name: "除法求值",
+        difficulty: "Medium",
+        essence: "带权并查集或带权图的DFS：变量间的除法关系构成带权有向图，查询两变量的比值就是在图上找路径并累乘权重。",
+        analysis: "从第一性原理看，a/b=2.0意味着a=2b，这是变量间的等式约束。多个等式构成一个带权图，边权表示比值。查询a/c的值，就是在图中找a到c的路径，将沿路比值连乘。如果a和c不在同一连通分量，则无法确定比值。用并查集可以高效维护：不仅记录连通性，还记录每个节点到其根的权重比值，路径压缩时同步更新。find时递归更新parent和weight，保证查询O(1)均摊。",
+        code: "def calcEquation(self, equations, values, queries):\n    parent = {}  # 节点 -> 父节点\n    weight = {}  # 节点 -> 到父节点的权重比\n    def find(x):\n        if x not in parent:\n            parent[x] = x\n            weight[x] = 1.0\n            return x, 1.0\n        if parent[x] == x:\n            return x, 1.0\n        # 路径压缩：递归找到根，同时更新权重\n        root, root_w = find(parent[x])\n        weight[x] *= root_w  # x到根的权重 = x到父 * 父到根\n        parent[x] = root\n        return parent[x], weight[x]\n    def union(x, y, val):\n        rx, wx = find(x)\n        ry, wy = find(y)\n        if rx != ry:\n            parent[rx] = ry\n            # x/ry = x/rx * rx/ry, 而 x/y = val, rx = x/wx\n            weight[rx] = val * wy / wx\n    # 构建带权并查集\n    for (a, b), v in zip(equations, values):\n        union(a, b, v)\n    res = []\n    for a, b in queries:\n        if a not in parent or b not in parent:\n            res.append(-1.0)\n            continue\n        ra, wa = find(a)\n        rb, wb = find(b)\n        if ra != rb:\n            res.append(-1.0)\n        else:\n            # a/b = (a/root) / (b/root)\n            res.append(wa / wb)\n    return res"
+      },
+      {
+        id: 785,
+        name: "判断二分图",
+        difficulty: "Medium",
+        essence: "图能否二着色：相邻节点必须不同色，BFS/DFS交替染色，若冲突则非二分图。",
+        analysis: "从第一性原理看，二分图的本质约束是：所有边必须跨越两个集合，不存在集合内部的边。等价于图可以被两种颜色正确着色，相邻节点颜色不同。用BFS逐层染色：起点染0，邻居染1，邻居的邻居染0……如果某条边两端颜色相同，说明矛盾。连通分量可能有多个，需要对每个未染色的起点启动BFS。二分图等价于图中无奇数长度的环。",
+        code: "def isBipartite(self, graph):\n    n = len(graph)\n    color = [-1] * n  # -1未染色, 0和1为两种颜色\n    for start in range(n):\n        if color[start] != -1:\n            continue\n        queue = deque([start])\n        color[start] = 0\n        while queue:\n            node = queue.popleft()\n            for neighbor in graph[node]:\n                if color[neighbor] == -1:\n                    # 未染色的邻居染相反颜色\n                    color[neighbor] = 1 - color[node]\n                    queue.append(neighbor)\n                elif color[neighbor] == color[node]:\n                    # 相邻同色，矛盾\n                    return False\n    return True"
+      },
+      {
+        id: 208,
+        name: "实现Trie前缀树",
+        difficulty: "Medium",
+        essence: "多叉树的路径编码字符串：从根到某节点的路径代表一个字符串前缀，每条边对应一个字符。",
+        analysis: "从第一性原理看，字符串查找的核心矛盾是：逐字符比较效率低。Trie的洞察是——所有公共前缀的字符串共享同一条路径，只在分叉处分开。这把字符串集合的组织方式从'独立存储'变为'前缀共享'，使得查找任意字符串的时间只取决于其长度，与集合大小无关。每个节点存26个子指针（对应26个字母）和一个end标记（是否有单词在此结束）。插入和查找都是沿字符依次向下走。",
+        code: "class Trie:\n    def __init__(self):\n        self.children = [None] * 26\n        self.is_end = False\n    def insert(self, word):\n        node = self\n        for ch in word:\n            idx = ord(ch) - ord('a')\n            if not node.children[idx]:\n                node.children[idx] = Trie()\n            node = node.children[idx]\n        node.is_end = True\n    def search(self, word):\n        node = self._find(word)\n        return node is not None and node.is_end\n    def startsWith(self, prefix):\n        return self._find(prefix) is not None\n    def _find(self, prefix):\n        node = self\n        for ch in prefix:\n            idx = ord(ch) - ord('a')\n            if not node.children[idx]:\n                return None\n            node = node.children[idx]\n        return node"
+      },
+      {
+        id: 128,
+        name: "最长连续序列",
+        difficulty: "Medium",
+        essence: "在无序数组中找最长连续整数序列：对每个可能的序列起点（num-1不存在），向后延伸计数。",
+        analysis: "从第一性原理看，'连续序列'意味着如果x在序列中，x+1也在。暴力做法是排序后扫描，但排序O(nlogn)。O(n)的关键洞察是：一个连续序列[a, a+1, ..., b]中，只有a是'序列起点'（即a-1不在集合中）。用哈希集合O(1)判断某个数是否存在，只从序列起点开始向后枚举计数。每个数最多被一个序列起点遍历到，总时间O(n)。",
+        code: "def longestConsecutive(self, nums):\n    num_set = set(nums)\n    longest = 0\n    for num in num_set:\n        # 只有当num是序列起点时才计数\n        if num - 1 not in num_set:\n            current = num\n            streak = 1\n            while current + 1 in num_set:\n                current += 1\n                streak += 1\n            longest = max(longest, streak)\n    return longest"
+      }
+    ]
+  }
+];
+
+const data_tree_recursion = [
+  {
+    category: "树结构的递归分解 (二叉树)",
+    categoryEssence: "二叉树的本质是递归定义的——每棵子树本身也是一棵二叉树，因此几乎所有树问题都可分解为'对根做某事+对左右子树递归'的模式。",
+    problems: [
+      {
+        id: 104,
+        name: "二叉树的最大深度",
+        difficulty: "Easy",
+        essence: "树的最大深度=1+max(左子树深度, 右子树深度)，递归定义天然就是解法。",
+        analysis: "从第一性原理看，深度的定义本身就是递归的：空树深度为0，非空树深度为根节点层加上子树中更深的那一侧。因此代码与定义完全一致。这也是所有树递归问题的原型——理解了'把问题交给子树'这个模式，就理解了树问题的本质。BFS层序遍历也可解，但递归最简洁。",
+        code: "def maxDepth(self, root):\n    if not root:\n        return 0\n    # 深度 = 1 + 更深的子树\n    return 1 + max(self.maxDepth(root.left), self.maxDepth(root.right))"
+      },
+      {
+        id: 226,
+        name: "翻转二叉树",
+        difficulty: "Easy",
+        essence: "翻转一棵树=交换左右子树+分别翻转左右子树，递归定义即递归解法。",
+        analysis: "从第一性原理看，'翻转'就是镜像——每个节点的左子树和右子树互换。这同样是递归定义的：翻转一棵树 = 交换根的左右孩子 + 翻转新的左子树 + 翻转新的右子树。递归的终止条件是空节点不需要翻转。这道题之所以著名，不仅因为Homebrew作者不会做，更因为它完美展示了递归分解的优雅。",
+        code: "def invertTree(self, root):\n    if not root:\n        return None\n    # 交换左右子树\n    root.left, root.right = root.right, root.left\n    # 递归翻转两棵子树\n    self.invertTree(root.left)\n    self.invertTree(root.right)\n    return root"
+      },
+      {
+        id: 101,
+        name: "对称二叉树",
+        difficulty: "Easy",
+        essence: "对称性=左子树镜像等于右子树，递归比较(左.左,右.右)和(左.右,右.左)。",
+        analysis: "从第一性原理看，'对称'意味着以根为轴，左半部分是右半部分的镜像。将问题转化为：判断两棵树是否互为镜像。两棵树互为镜像的条件是：根值相等，且A的左子树与B的右子树互为镜像、A的右子树与B的左子树互为镜像。注意区分'对称'（根的左右子树互为镜像）和'相同'（递归比较A.left与B.left）。",
+        code: "def isSymmetric(self, root):\n    def isMirror(t1, t2):\n        if not t1 and not t2:\n            return True\n        if not t1 or not t2:\n            return False\n        # 对称：根值相等 + 交叉镜像\n        return (t1.val == t2.val\n                and isMirror(t1.left, t2.right)\n                and isMirror(t1.right, t2.left))\n    return isMirror(root.left, root.right)"
+      },
+      {
+        id: 543,
+        name: "二叉树的直径",
+        difficulty: "Easy",
+        essence: "直径=某个节点左子树最大深度+右子树最大深度，遍历所有节点取最大值。",
+        analysis: "从第一性原理看，树的直径是任意两节点间的最长路径。这条最长路径一定经过某个'最高点'（LCA），在该点处向左右子树各向下延伸最远。因此对每个节点计算depth(left)+depth(right)，全局取最大值即为直径。递归函数返回以该节点为根的子树的最大深度，同时用全局变量更新直径。关键认知：直径不一定过根节点。",
+        code: "def diameterOfBinaryTree(self, root):\n    self.diameter = 0\n    def depth(node):\n        if not node:\n            return 0\n        left = depth(node.left)\n        right = depth(node.right)\n        # 以当前节点为最高点的路径长度\n        self.diameter = max(self.diameter, left + right)\n        return 1 + max(left, right)\n    depth(root)\n    return self.diameter"
+      },
+      {
+        id: 98,
+        name: "验证二叉搜索树",
+        difficulty: "Medium",
+        essence: "BST的中序遍历严格递增，或递归时传递有效值范围(min, max)约束。",
+        analysis: "从第一性原理看，BST的根本约束是：每个节点的值必须大于其左子树所有节点的值、小于其右子树所有节点的值。这意味着不仅要比较节点与直接子节点，还要与祖先的约束比较。解法一是中序遍历，BST的中序一定是严格递增序列，用prev记录前驱即可。解法二是递归时传递上下界(min, max)，每个节点必须在(min, max)开区间内，左子树更新上界为当前值，右子树更新下界为当前值。",
+        code: "def isValidBST(self, root):\n    def validate(node, low, high):\n        if not node:\n            return True\n        # 当前节点必须在(low, high)开区间内\n        if node.val <= low or node.val >= high:\n            return False\n        return (validate(node.left, low, node.val)\n                and validate(node.right, node.val, high))\n    return validate(root, float('-inf'), float('inf'))"
+      },
+      {
+        id: 102,
+        name: "二叉树的层序遍历",
+        difficulty: "Medium",
+        essence: "BFS按层处理：队列中每次处理一整层，记录层内所有节点值。",
+        analysis: "从第一性原理看，'层序'就是按深度从小到大、同层从左到右的顺序。BFS天然按层扩展：队列先进先出保证同层先处理完再处理下一层。关键技巧是在每轮BFS开始时记录当前队列长度，这就是本层的节点数，然后恰好弹出这么多个节点。这比用两个队列或加入分隔符更优雅。",
+        code: "def levelOrder(self, root):\n    if not root:\n        return []\n    result = []\n    queue = deque([root])\n    while queue:\n        level_size = len(queue)  # 当前层节点数\n        level = []\n        for _ in range(level_size):\n            node = queue.popleft()\n            level.append(node.val)\n            if node.left:\n                queue.append(node.left)\n            if node.right:\n                queue.append(node.right)\n        result.append(level)\n    return result"
+      },
+      {
+        id: 124,
+        name: "二叉树中的最大路径和",
+        difficulty: "Hard",
+        essence: "路径和=某节点左单链最大贡献+右单链最大贡献+节点值，递归计算单链贡献同时更新全局最大路径和。",
+        analysis: "从第一性原理看，'路径'是一条无分叉的链。树中任意路径都有一个'最高点'——路径上深度最小的节点。在该最高点处，路径向左子树延伸一条下降链、向右子树延伸一条下降链。因此对每个节点，计算以它为最高点的最大路径和=node.val+左单链最大贡献+右单链最大贡献（贡献为负则取0，即不延伸）。递归函数返回的是以该节点为起点的单链最大贡献=max(node.val, node.val+max(左贡献,右贡献))。",
+        code: "def maxPathSum(self, root):\n    self.max_sum = float('-inf')\n    def gain(node):\n        if not node:\n            return 0\n        # 左右子树的单链最大贡献，负贡献直接舍弃\n        left_gain = max(gain(node.left), 0)\n        right_gain = max(gain(node.right), 0)\n        # 以当前节点为最高点的路径和\n        self.max_sum = max(self.max_sum, node.val + left_gain + right_gain)\n        # 返回单链贡献：只能选一侧延伸\n        return node.val + max(left_gain, right_gain)\n    gain(root)\n    return self.max_sum"
+      },
+      {
+        id: 236,
+        name: "二叉树的最近公共祖先",
+        difficulty: "Medium",
+        essence: "LCA是第一个使p和q分布在其两侧子树（或自身就是p/q）的节点，递归自底向上寻找。",
+        analysis: "从第一性原理看，'最近公共祖先'是树中深度最大的同时为p和q祖先的节点。关键观察：如果p和q分别在节点node的左右子树中，那node就是LCA；如果p是q的祖先（或反之），那p本身就是LCA。递归返回值的含义：在当前子树中找到p或q就返回它，两边都找到返回当前节点(LCA)，只一边找到就上传。这是自底向上汇聚信息的经典模式。",
+        code: "def lowestCommonAncestor(self, root, p, q):\n    if not root or root == p or root == q:\n        return root\n    left = self.lowestCommonAncestor(root.left, p, q)\n    right = self.lowestCommonAncestor(root.right, p, q)\n    if left and right:\n        # p和q分别在两侧，当前节点就是LCA\n        return root\n    # 都在某一侧，或只找到一个\n    return left if left else right"
+      },
+      {
+        id: 105,
+        name: "从前序与中序遍历序列构造二叉树",
+        difficulty: "Medium",
+        essence: "前序定根，中序定左右子树边界：递归地在子区间内重复根-左-右的划分。",
+        analysis: "从第一性原理看，前序遍历的第一个元素一定是根节点，而中序遍历中根节点的位置将序列分为左子树和右子树的中序。知道左子树节点数后，前序序列中根节点后面同等数量个元素就是左子树的前序。这构成了递归的分治结构：每次从preorder取根，在inorder中定位根划分左右，递归构建子树。用哈希表加速inorder中根的查找。",
+        code: "def buildTree(self, preorder, inorder):\n    idx_map = {val: i for i, val in enumerate(inorder)}\n    def helper(pre_left, pre_right, in_left, in_right):\n        if pre_left > pre_right:\n            return None\n        # 前序第一个元素是根\n        root_val = preorder[pre_left]\n        root = TreeNode(root_val)\n        in_root = idx_map[root_val]\n        left_size = in_root - in_left\n        # 递归构建左子树和右子树\n        root.left = helper(pre_left+1, pre_left+left_size, in_left, in_root-1)\n        root.right = helper(pre_left+left_size+1, pre_right, in_root+1, in_right)\n        return root\n    return helper(0, len(preorder)-1, 0, len(inorder)-1)"
+      },
+      {
+        id: 114,
+        name: "二叉树展开为链表",
+        difficulty: "Medium",
+        essence: "先序遍历的顺序重排节点：递归展开右子树后，将左子树插入根与右子树之间。",
+        analysis: "从第一性原理看，展开为链表就是按先序遍历的顺序将所有节点串成右偏链表。关键操作：对当前节点，先递归展开左右子树，然后将整棵左子树插入到根和右子树之间。具体步骤：记录展开后的右子树，将左子树移到右边，左置空，然后走到新链表末尾，接上原右子树。也可以用后序遍历(右-左-根)逆先序的方式，用prev指针反向串联。",
+        code: "def flatten(self, root):\n    def dfs(node):\n        if not node:\n            return None\n        # 先展开左右子树\n        left_tail = dfs(node.left)\n        right_tail = dfs(node.right)\n        if node.left:\n            # 左子树尾部接上原右子树\n            left_tail.right = node.right\n            # 左子树移到右边\n            node.right = node.left\n            node.left = None\n        # 返回当前链表的尾节点\n        return right_tail or left_tail or node\n    dfs(root)"
+      },
+      {
+        id: 199,
+        name: "二叉树的右视图",
+        difficulty: "Medium",
+        essence: "每层最后一个节点：BFS层序遍历中每层的最右节点，或DFS先右后左记录每层首次访问。",
+        analysis: "从第一性原理看，'右视图'就是从右侧看过去能看到的节点——即每层最右边的节点。BFS解法最直观：层序遍历每层取最后一个节点。DFS也可解：按'根-右-左'的顺序遍历，每层第一个被访问的节点就是最右节点。DFS用depth判断是否是该层第一次访问，首次访问即加入结果。",
+        code: "def rightSideView(self, root):\n    if not root:\n        return []\n    result = []\n    queue = deque([root])\n    while queue:\n        level_size = len(queue)\n        for i in range(level_size):\n            node = queue.popleft()\n            if i == level_size - 1:  # 每层最后一个节点\n                result.append(node.val)\n            if node.left:\n                queue.append(node.left)\n            if node.right:\n                queue.append(node.right)\n    return result"
+      },
+      {
+        id: 297,
+        name: "二叉树的序列化与反序列化",
+        difficulty: "Hard",
+        essence: "序列化是遍历的逆操作：用先序遍历编码（含null标记），反序列化按相同顺序重建。",
+        analysis: "从第一性原理看，序列化要保留足够信息让树能唯一重建。先序遍历+null标记就能做到：遇到非空节点记录值，遇到空记录特殊标记（如'#'）。反序列化时按先序顺序消费序列：取一个值，若为null返回空节点，否则创建节点后递归构建左右子树。关键认知：仅凭先序遍历无法确定唯一的BST，但加上null标记后先序遍历可以唯一确定任意二叉树。",
+        code: "class Codec:\n    def serialize(self, root):\n        vals = []\n        def dfs(node):\n            if not node:\n                vals.append('#')\n                return\n            vals.append(str(node.val))\n            dfs(node.left)\n            dfs(node.right)\n        dfs(root)\n        return ','.join(vals)\n\n    def deserialize(self, data):\n        vals = iter(data.split(','))\n        def dfs():\n            val = next(vals)\n            if val == '#':\n                return None\n            node = TreeNode(int(val))\n            node.left = dfs()\n            node.right = dfs()\n            return node\n        return dfs()"
+      },
+      {
+        id: 617,
+        name: "合并二叉树",
+        difficulty: "Easy",
+        essence: "两树对应位置节点值相加，缺位用对方节点补，递归同步遍历。",
+        analysis: "从第一性原理看，合并就是对应位置的聚合操作。两棵树同一位置：都有节点则值相加，一方为空则取另一方。这是两个递归结构的逐位置合并——同步递归两棵树的根、左子树、右子树。终止条件是任一方为空时返回另一方。这种'同步递归'模式与对称二叉树的'双树递归'一脉相承。",
+        code: "def mergeTrees(self, t1, t2):\n    if not t1:\n        return t2\n    if not t2:\n        return t1\n    # 两节点都存在，值相加\n    t1.val += t2.val\n    t1.left = self.mergeTrees(t1.left, t2.left)\n    t1.right = self.mergeTrees(t1.right, t2.right)\n    return t1"
+      },
+      {
+        id: 437,
+        name: "路径总和III",
+        difficulty: "Medium",
+        essence: "前缀和+哈希：树上路径和问题转化为前缀和的差，用哈希表记录祖先前缀和的频次。",
+        analysis: "从第一性原理看，'路径和等于target'等价于'路径两端点的前缀和之差等于target'。这和数组的560题（和为K的子数组）本质相同，只是从线性结构推广到树形结构。DFS遍历时维护从根到当前节点的前缀和，用哈希表记录路径上各前缀和出现次数。对当前节点，查找prefix_sum-target在哈希表中的次数就是以当前节点为终点的合法路径数。回溯时删除当前前缀和以保证路径必须是祖先到后代。",
+        code: "def pathSum(self, root, targetSum):\n    from collections import defaultdict\n    self.count = 0\n    prefix = defaultdict(int)\n    prefix[0] = 1  # 前缀和为0出现1次\n    def dfs(node, curr_sum):\n        if not node:\n            return\n        curr_sum += node.val\n        # 存在前缀和 = curr_sum - target 的祖先\n        self.count += prefix[curr_sum - targetSum]\n        prefix[curr_sum] += 1\n        dfs(node.left, curr_sum)\n        dfs(node.right, curr_sum)\n        # 回溯：离开当前节点，撤销前缀和\n        prefix[curr_sum] -= 1\n    dfs(root, 0)\n    return self.count"
+      }
+    ]
+  }
+];
+
+const data_greedy = [
+  {
+    category: "局部最优的累积 (贪心)",
+    categoryEssence: "贪心的第一性原理是：如果全局最优解在每个局部决策点都必然选择某个选项，那么局部最优的累积就是全局最优——关键在于证明局部选择的不可替代性。",
+    problems: [
+      {
+        id: 55,
+        name: "跳跃游戏",
+        difficulty: "Medium",
+        essence: "维护当前可达的最远位置：如果某个位置超出了最远可达范围，则不可达；否则不断扩展最远范围。",
+        analysis: "从第一性原理看，'能否到达末尾'等价于'从起点出发，能否逐步扩展可达区域直到覆盖末尾'。每个位置i如果在可达范围内，就可以用i+nums[i]更新最远可达位置。如果在某一步，当前位置i超过了最远可达位置，说明存在断层，无法前进。这本质上是贪心地维护可达区域的右边界——只要没有断层就一定能到。",
+        code: "def canJump(self, nums):\n    max_reach = 0\n    for i, jump in enumerate(nums):\n        if i > max_reach:  # 当前位置不可达，断层\n            return False\n        max_reach = max(max_reach, i + jump)\n        if max_reach >= len(nums) - 1:\n            return True\n    return True"
+      },
+      {
+        id: 45,
+        name: "跳跃游戏II",
+        difficulty: "Medium",
+        essence: "贪心跳跃：每步在当前可达范围内选择能使下一步跳得最远的位置，最少步数等于必要的跳跃次数。",
+        analysis: "从第一性原理看，最少跳跃次数等于'不得不跳'的次数。维护当前步的可达范围[current_start, current_end]，在这个范围内找到下一步能到达的最远位置next_end。当遍历到current_end时，必须跳一步，步数+1，更新可达范围为[current_end+1, next_end]。每一步都贪心地扩展最远可达位置，步数就是层级数。类比BFS，每一步就是BFS的一层。",
+        code: "def jump(self, nums):\n    jumps = 0\n    current_end = 0  # 当前步可达的最远位置\n    next_end = 0     # 下一步可达的最远位置\n    for i in range(len(nums) - 1):  # 不需要跳到最后一个位置\n        next_end = max(next_end, i + nums[i])\n        if i == current_end:  # 到达当前步边界，必须跳\n            jumps += 1\n            current_end = next_end\n    return jumps"
+      },
+      {
+        id: 121,
+        name: "买卖股票的最佳时机",
+        difficulty: "Easy",
+        essence: "最大利润=最高卖出价-之前的最低买入价，遍历时维护历史最低价。",
+        analysis: "从第一性原理看，利润=卖出价-买入价，要利润最大就要卖出价尽可能高、买入价尽可能低，且买入必须在卖出之前。遍历价格序列时，维护到目前为止的最低价格min_price，每个位置i的潜在利润就是prices[i]-min_price，取全局最大值。这是贪心的本质：每次卖出时，最优买入点一定是之前价格最低的时刻。",
+        code: "def maxProfit(self, prices):\n    min_price = float('inf')\n    max_profit = 0\n    for price in prices:\n        min_price = min(min_price, price)\n        max_profit = max(max_profit, price - min_price)\n    return max_profit"
+      },
+      {
+        id: 122,
+        name: "买卖股票的最佳时机II",
+        difficulty: "Medium",
+        essence: "可以多次交易时，所有上涨段的利润之和就是最大利润，贪心捕获每一段上升。",
+        analysis: "从第一性原理看，允许多次交易时，任何不重叠的上涨段都可以被捕获。总最大利润等于所有上升段的利润之和。为什么？因为连续上涨prices[a]<prices[b]<prices[c]中，(c-a)的利润等于(b-a)+(c-b)，拆成两段交易与一段等效。所以只需遍历一遍，只要明天比今天贵就今天买明天卖，累加所有正差值。贪心正确性在于：不遗漏任何正利润机会。",
+        code: "def maxProfit(self, prices):\n    profit = 0\n    for i in range(1, len(prices)):\n        if prices[i] > prices[i-1]:\n            # 只捕获上涨段\n            profit += prices[i] - prices[i-1]\n    return profit"
+      },
+      {
+        id: 763,
+        name: "划分字母区间",
+        difficulty: "Medium",
+        essence: "每个字母的最后出现位置决定了包含该字母的片段的最小右边界，贪心扩展到边界处切割。",
+        analysis: "从第一性原理看，'每个字母最多出现在一个片段中'意味着：如果字母a出现在位置i，那包含i的片段必须延伸到a的最后一次出现位置。因此先统计每个字母的最后出现位置，然后遍历字符串，维护当前片段的右边界（当前已见字母的最后出现位置的最大值）。当遍历到右边界时，当前位置就是最优切割点——不能再早（会遗漏字母），也不需再晚（贪心最短片段）。",
+        code: "def partitionLabels(self, s):\n    # 统计每个字母的最后出现位置\n    last = {c: i for i, c in enumerate(s)}\n    result = []\n    start = end = 0\n    for i, c in enumerate(s):\n        end = max(end, last[c])  # 扩展右边界\n        if i == end:  # 到达切割点\n            result.append(end - start + 1)\n            start = i + 1\n    return result"
+      },
+      {
+        id: 135,
+        name: "分发糖果",
+        difficulty: "Hard",
+        essence: "两次遍历分别满足左规则和右规则：从左到右保证右边评分高的糖果更多，从右到左保证左边评分高的糖果更多，取两者最大值。",
+        analysis: "从第一性原理看，约束'相邻评分高的孩子糖果更多'分为两个方向的子约束：右>左时右边更多、左>右时左边更多。单独满足任一方向只需一次贪心遍历（评分更高则+1，否则重置为1）。两个方向同时满足取两次遍历结果的逐位最大值。为什么取max？因为两个约束是独立的必要条件，同时满足等价于每个位置同时满足两个约束，max就是满足两个下界的最小值，即最优解。",
+        code: "def candy(self, ratings):\n    n = len(ratings)\n    left = [1] * n\n    right = [1] * n\n    # 从左到右：右比左高则右边+1\n    for i in range(1, n):\n        if ratings[i] > ratings[i-1]:\n            left[i] = left[i-1] + 1\n    # 从右到左：左比右高则左边+1\n    for i in range(n-2, -1, -1):\n        if ratings[i] > ratings[i+1]:\n            right[i] = right[i+1] + 1\n    # 取max同时满足两个方向的约束\n    return sum(max(l, r) for l, r in zip(left, right))"
+      },
+      {
+        id: 406,
+        name: "根据身高重建队列",
+        difficulty: "Medium",
+        essence: "先排高的人（不受矮人影响），再逐个插入矮的人到指定位置：高人已固定，矮人插入不影响高人的排数。",
+        analysis: "从第一性原理看，'前面有k个更高或等高的人'这个约束对高个子来说只受更高的人影响（不受矮个子影响），对矮个子则受所有人影响。因此应该先处理高个子（约束更少、更容易满足），再插入矮个子（插入到指定位置k，因为前面已有正确数量的高个子）。按身高降序、k升序排列后，依次将每个人插入结果数组的第k个位置。插入矮人不破坏已排好的高个子序关系。",
+        code: "def reconstructQueue(self, people):\n    # 按身高降序，k升序排列\n    people.sort(key=lambda x: (-x[0], x[1]))\n    result = []\n    for p in people:\n        # 插入到第k个位置（前面恰有k个更高或等高的人）\n        result.insert(p[1], p)\n    return result"
+      },
+      {
+        id: 56,
+        name: "合并区间",
+        difficulty: "Medium",
+        essence: "排序后贪心合并：按左端点排序，相邻区间有重叠则合并为并集，无重叠则新区间开始。",
+        analysis: "从第一性原理看，区间合并的条件是两个区间有交集。排序后，如果当前区间与已合并的最后一个区间有重叠（当前左端点<=最后一个右端点），则合并（更新右端点为max）；否则当前区间开启新区间。排序消除了'后出现的区间可能影响前面已合并结果'的问题——按左端点排序后，每个区间只需与最后合并的区间比较。贪心正确性：排序后，有重叠的相邻区间必然连续出现。",
+        code: "def merge(self, intervals):\n    intervals.sort(key=lambda x: x[0])\n    merged = [intervals[0]]\n    for curr in intervals[1:]:\n        last = merged[-1]\n        if curr[0] <= last[1]:  # 有重叠，合并\n            last[1] = max(last[1], curr[1])\n        else:  # 无重叠，新区间\n            merged.append(curr)\n    return merged"
+      }
+    ]
+  }
+];
+
+const data_prefix_hash = [
+  {
+    category: "区间的代数化 (前缀和/哈希)",
+    categoryEssence: "前缀和将区间求和转化为端点值的代数运算，哈希表将查找从O(n)降到O(1)——两者结合将区间问题从遍历降维为查表。",
+    problems: [
+      {
+        id: 1,
+        name: "两数之和",
+        difficulty: "Easy",
+        essence: "查找补数：遍历时用哈希表记录已见数字，O(1)查询是否存在target-当前数的补数。",
+        analysis: "从第一性原理看，'两数之和=target'等价于'当前数x的补数target-x是否存在于数组中'。暴力做法对每个x遍历找补数O(n^2)，但查找可以优化：用哈希表存储已遍历的数字到索引的映射，每个新数字查表看补数是否已出现。遍历一次O(n)，每次查表O(1)。这是哈希表'空间换时间'的最经典应用。",
+        code: "def twoSum(self, nums, target):\n    seen = {}  # 值 -> 索引\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i\n    return []"
+      },
+      {
+        id: 560,
+        name: "和为K的子数组",
+        difficulty: "Medium",
+        essence: "前缀和之差等于K：遍历时记录每个前缀和出现次数，查找prefix-K是否存在。",
+        analysis: "从第一性原理看，子数组[i,j]的和=prefix[j]-prefix[i-1]，要其等于K则prefix[j]-prefix[i-1]=K，即prefix[i-1]=prefix[j]-K。因此对每个右端点j，只需统计之前有多少个前缀和等于prefix[j]-K。用哈希表记录前缀和出现的次数，遍历时O(1)查询。这与两数之和的思路一脉相承：将'找区间'问题转化为'找前缀和的差'，用哈希表加速查找。",
+        code: "def subarraySum(self, nums, k):\n    from collections import defaultdict\n    count = 0\n    prefix_sum = 0\n    prefix_count = defaultdict(int)\n    prefix_count[0] = 1  # 前缀和0出现1次（空前缀）\n    for num in nums:\n        prefix_sum += num\n        # 有多少个前缀和 = prefix_sum - k\n        count += prefix_count[prefix_sum - k]\n        prefix_count[prefix_sum] += 1\n    return count"
+      },
+      {
+        id: 49,
+        name: "字母异位词分组",
+        difficulty: "Medium",
+        essence: "异位词的排序后字符串相同（或字母计数相同），以此作为哈希键分组。",
+        analysis: "从第一性原理看，'字母异位词'的本质是：两个字符串包含完全相同的字母及频次，只是排列不同。因此需要一个与排列无关的等价标识。最直接的方式是将字符串排序——排序后所有异位词变成同一字符串，作为哈希键即可分组。也可用26个字母的计数元组作为键，避免排序但常数更大。核心洞察：将'排列等价'转化为'规范形式相等'。",
+        code: "def groupAnagrams(self, strs):\n    from collections import defaultdict\n    groups = defaultdict(list)\n    for s in strs:\n        # 排序后的字符串作为异位词的规范形式\n        key = ''.join(sorted(s))\n        groups[key].append(s)\n    return list(groups.values())"
+      },
+      {
+        id: 238,
+        name: "除自身以外数组的乘积",
+        difficulty: "Medium",
+        essence: "结果[i]=左侧所有元素的乘积×右侧所有元素的乘积，两次遍历分别累积左右乘积。",
+        analysis: "从第一性原理看，排除自身后的乘积 = 该元素左边所有数的乘积 × 右边所有数的乘积。不能直接除（有0的情况），所以用两次遍历分别计算。第一遍从左到右，累计左边乘积；第二遍从右到左，累计右边乘积并与左边乘积相乘。这是前缀思想的乘法版本——前缀和变成前缀积，区间和变成左积×右积。空间O(1)（不算输出数组）的实现用输出数组存左积，用变量累右积。",
+        code: "def productExceptSelf(self, nums):\n    n = len(nums)\n    result = [1] * n\n    # 第一遍：左积累积\n    left = 1\n    for i in range(n):\n        result[i] = left\n        left *= nums[i]\n    # 第二遍：右积累积，与左积相乘\n    right = 1\n    for i in range(n-1, -1, -1):\n        result[i] *= right\n        right *= nums[i]\n    return result"
+      },
+      {
+        id: 146,
+        name: "LRU缓存",
+        difficulty: "Medium",
+        essence: "哈希表+双向链表：哈希表O(1)查找，链表O(1)调整访问顺序，最近访问移到头部，满时淘汰尾部。",
+        analysis: "从第一性原理看，LRU缓存的核心需求是：O(1)查找+O(1)淘汰最久未使用。单独哈希表只能O(1)查找，淘汰需遍历找最久未用；单独链表无法O(1)查找。两者结合：哈希表存key到链表节点的映射实现O(1)查找，双向链表按访问时间排序实现O(1)移动和删除。每次访问(get/put)将节点移到链表头部，容量满时删除链表尾部。这是数据结构组合设计的典范——用不同结构各自解决一个维度的需求。",
+        code: "class LRUCache:\n    def __init__(self, capacity):\n        self.cap = capacity\n        self.cache = {}  # key -> Node\n        # 哨兵节点简化边界处理\n        self.head = Node(0, 0)\n        self.tail = Node(0, 0)\n        self.head.next = self.tail\n        self.tail.prev = self.head\n\n    def get(self, key):\n        if key not in self.cache:\n            return -1\n        node = self.cache[key]\n        self._remove(node)\n        self._add_to_head(node)\n        return node.val\n\n    def put(self, key, value):\n        if key in self.cache:\n            self._remove(self.cache[key])\n        node = Node(key, value)\n        self.cache[key] = node\n        self._add_to_head(node)\n        if len(self.cache) > self.cap:\n            # 淘汰最久未用（尾部）\n            lru = self.tail.prev\n            self._remove(lru)\n            del self.cache[lru.key]\n\n    def _remove(self, node):\n        node.prev.next = node.next\n        node.next.prev = node.prev\n\n    def _add_to_head(self, node):\n        node.next = self.head.next\n        node.prev = self.head\n        self.head.next.prev = node\n        self.head.next = node\n\nclass Node:\n    def __init__(self, key, val):\n        self.key = key\n        self.val = val\n        self.prev = self.next = None"
+      },
+      {
+        id: 347,
+        name: "前K个高频元素",
+        difficulty: "Medium",
+        essence: "哈希统计频率+堆/桶排序取TopK：统计频次后，用最小堆维护前K个高频元素。",
+        analysis: "从第一性原理看，问题分解为两步：统计频率和选取TopK。统计频率用哈希表O(n)。选取TopK有两种思路：最小堆（维护大小为K的堆，新元素比堆顶大则替换）O(nlogK)；桶排序（频率作为桶下标，从高频到低频取）O(n)。当K远小于n时堆更省空间，桶排序更直观。核心洞察：不需要对所有元素排序，只需找到前K个——TopK问题永远比全排序更高效。",
+        code: "def topKFrequent(self, nums, k):\n    from collections import Counter\n    import heapq\n    count = Counter(nums)\n    # 最小堆维护前K个高频元素\n    heap = []\n    for num, freq in count.items():\n        heapq.heappush(heap, (freq, num))\n        if len(heap) > k:\n            heapq.heappop(heap)  # 弹出频率最低的\n    return [num for freq, num in heap]"
+      }
+    ]
+  }
+];
+
+const data_linked_list = [
+  {
+    category: "指针的操控 (链表)",
+    categoryEssence: "链表的核心约束是只能单向逐节点访问，所有操作的本质都是指针的重定向——断开旧连接、建立新连接，双指针是处理位置关系的通用工具。",
+    problems: [
+      {
+        id: 206,
+        name: "反转链表",
+        difficulty: "Easy",
+        essence: "逐节点翻转指针方向：用prev和curr双指针，每次将curr.next指向prev，然后双指针前进。",
+        analysis: "从第一性原理看，反转链表就是把每条边的方向反过来。遍历时维护两个指针prev和curr，核心操作是curr.next=prev（翻转当前边的方向），然后prev和curr各前进一步。关键是先用next暂存curr.next再翻转，否则翻转后原链断了无法前进。这是所有链表指针操作的原型——理解'先存后改'的顺序，就理解了链表操作的本质。",
+        code: "def reverseList(self, head):\n    prev = None\n    curr = head\n    while curr:\n        next_temp = curr.next  # 暂存下一个节点\n        curr.next = prev       # 翻转指针\n        prev = curr            # prev前进\n        curr = next_temp       # curr前进\n    return prev  # prev是新的头节点"
+      },
+      {
+        id: 141,
+        name: "环形链表",
+        difficulty: "Easy",
+        essence: "快慢指针追及：快指针每次走2步，慢指针走1步，若有环必在某处相遇。",
+        analysis: "从第一性原理看，检测环等价于检测链表是否无限长。快慢指针利用了相对运动的原理：在环内，快指针相对慢指针每步靠近1步（2-1=1），必然会在有限步内追上慢指针。若无环，快指针会先到达末尾。这比哈希表记录已访问节点更优雅，空间O(1)。数学上，设环外长度a、环长b，相遇时慢指针走了a+s步（s<b），快指针走了a+s+nb步，2(a+s)=a+s+nb，所以a+s=nb，即a=nb-s。",
+        code: "def hasCycle(self, head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next       # 慢指针走1步\n        fast = fast.next.next  # 快指针走2步\n        if slow == fast:       # 相遇则有环\n            return True\n    return False"
+      },
+      {
+        id: 21,
+        name: "合并两个有序链表",
+        difficulty: "Easy",
+        essence: "双指针归并：每次取较小头节点接入结果链，递归或迭代实现。",
+        analysis: "从第一性原理看，合并两个有序序列就是不断地取两者中的较小者。用虚拟头节点(dummy)简化边界处理，比较两链当前节点值，较小者接入结果链并前进。当一链耗尽，直接接上另一链剩余部分。这与归并排序的merge步骤完全相同。递归写法更简洁：比较两链头，较小者.next=递归合并(较小者.next, 另一链)。",
+        code: "def mergeTwoLists(self, l1, l2):\n    dummy = ListNode(0)\n    tail = dummy\n    while l1 and l2:\n        if l1.val <= l2.val:\n            tail.next = l1\n            l1 = l1.next\n        else:\n            tail.next = l2\n            l2 = l2.next\n        tail = tail.next\n    # 拼接剩余部分\n    tail.next = l1 or l2\n    return dummy.next"
+      },
+      {
+        id: 2,
+        name: "两数相加",
+        difficulty: "Medium",
+        essence: "链表逐位相加带进位：对应位相加+进位，注意最后可能还有进位。",
+        analysis: "从第一性原理看，两个逆序存储的链表天然对齐了个位、十位……逐位相加即可，维护进位carry。每位和=sum%10，新进位=sum//10。注意两个细节：两链长度可能不同，短的用0补齐；所有位都加完后可能还有进位需要额外节点。这是链表操作与数学运算结合的基本模式。",
+        code: "def addTwoNumbers(self, l1, l2):\n    dummy = ListNode(0)\n    curr = dummy\n    carry = 0\n    while l1 or l2 or carry:\n        val1 = l1.val if l1 else 0\n        val2 = l2.val if l2 else 0\n        total = val1 + val2 + carry\n        carry = total // 10\n        curr.next = ListNode(total % 10)\n        curr = curr.next\n        l1 = l1.next if l1 else None\n        l2 = l2.next if l2 else None\n    return dummy.next"
+      },
+      {
+        id: 19,
+        name: "删除链表的倒数第N个结点",
+        difficulty: "Medium",
+        essence: "快慢指针定位：快指针先走N步，然后快慢同速前进，快到末尾时慢恰好在倒数第N+1个位置。",
+        analysis: "从第一性原理看，删除倒数第N个需要找到倒数第N+1个节点（前驱）。但链表无法从后往前遍历。快慢指针的巧妙之处在于：快指针先走N步，两者间距N；然后同速前进，快指针到末尾时慢指针正好在倒数第N+1的位置。用dummy头节点统一处理删除头节点的情况。本质是'用空间距离换位置定位'。",
+        code: "def removeNthFromEnd(self, head, n):\n    dummy = ListNode(0, head)\n    fast = slow = dummy\n    # 快指针先走n步\n    for _ in range(n):\n        fast = fast.next\n    # 同速前进，快到末尾时慢在倒数第n+1个\n    while fast.next:\n        fast = fast.next\n        slow = slow.next\n    slow.next = slow.next.next  # 删除倒数第n个\n    return dummy.next"
+      },
+      {
+        id: 160,
+        name: "相交链表",
+        difficulty: "Easy",
+        essence: "双指针走完自己的链再走对方的链：两指针走过的总路程相同，必在交点处相遇。",
+        analysis: "从第一性原理看，两链表在交点后共享尾部。设A独有长度a、B独有长度b、共享长度c。如果指针pA走A+C+B，pB走B+C+A，两者走过的总长度相同(a+b+c)，且最后一段都是共享部分，因此必然在交点相遇。若不相交，两者同时到达null。这个方法的优雅之处在于不需要计算长度差，通过'走对方的路'自然对齐。",
+        code: "def getIntersectionNode(self, headA, headB):\n    pA, pB = headA, headB\n    while pA != pB:\n        # 走完自己的走对方的，自然对齐\n        pA = pA.next if pA else headB\n        pB = pB.next if pB else headA\n    return pA  # 相交点或None"
+      },
+      {
+        id: 148,
+        name: "排序链表",
+        difficulty: "Medium",
+        essence: "归并排序适配链表：用快慢指针找中点，递归排序两半，再合并两个有序链表。",
+        analysis: "从第一性原理看，链表排序的限制是不能随机访问，所以快速排序不适合。归并排序天然适合链表：找中点用快慢指针（快到末尾慢在中点），递归排序两半，合并用21题的有序合并。时间O(nlogn)，空间O(logn)递归栈。找中点时注意用prev切断慢指针前驱的next，否则无法分成两条独立链表。",
+        code: "def sortList(self, head):\n    if not head or not head.next:\n        return head\n    # 快慢指针找中点\n    slow, fast = head, head.next\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    mid = slow.next\n    slow.next = None  # 切断\n    # 递归排序两半\n    left = self.sortList(head)\n    right = self.sortList(mid)\n    # 合并有序链表\n    return self._merge(left, right)\n\ndef _merge(self, l1, l2):\n    dummy = ListNode(0)\n    tail = dummy\n    while l1 and l2:\n        if l1.val <= l2.val:\n            tail.next = l1; l1 = l1.next\n        else:\n            tail.next = l2; l2 = l2.next\n        tail = tail.next\n    tail.next = l1 or l2\n    return dummy.next"
+      },
+      {
+        id: 234,
+        name: "回文链表",
+        difficulty: "Easy",
+        essence: "找中点+反转后半+双指针比较：O(1)空间检测回文，比较后可恢复链表。",
+        analysis: "从第一性原理看，回文的定义是正反读相同。但链表只能正读。巧妙方案：快慢指针找到中点，反转后半段，然后双指针从两端向中间比较。时间O(n)，空间O(1)。也可以用栈存前半段再逐个弹出比较，但空间O(n)。找中点时用快慢指针，fast到末尾slow在中点（偶数长度时slow偏右一位）。比较完后可再反转恢复原链表。",
+        code: "def isPalindrome(self, head):\n    # 快慢指针找中点\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    # 反转后半段\n    prev = None\n    curr = slow\n    while curr:\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    # 双指针比较\n    left, right = head, prev\n    while right:  # 只需比较后半段\n        if left.val != right.val:\n            return False\n        left = left.next\n        right = right.next\n    return True"
+      },
+      {
+        id: 142,
+        name: "环形链表II",
+        difficulty: "Medium",
+        essence: "快慢指针找到相遇点后，从head和相遇点同速出发，必在环入口相遇：a=nb-s的数学结论。",
+        analysis: "从第一性原理看，在141题基础上要找环的入口。设环外长度a、环长b，快慢指针相遇时慢指针走了a+s步(s<b)。由2(a+s)=a+s+nb得a+s=nb，即a=nb-s=n'b-s(s+nb'=a，取n'=n-1+s/b的整数部分简化理解)。等式a=n'b-s意味着：从head走a步到环入口，从相遇点走n'b-s步也到环入口。而n'b-s等价于从相遇点沿环走，最终停在环入口。因此从head和相遇点同时出发，步速相同，必在环入口相遇。",
+        code: "def detectCycle(self, head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow == fast:  # 相遇\n            # 从head和相遇点同速出发，必在环入口相遇\n            ptr = head\n            while ptr != slow:\n                ptr = ptr.next\n                slow = slow.next\n            return ptr\n    return None"
+      },
+      {
+        id: 92,
+        name: "反转链表II",
+        difficulty: "Medium",
+        essence: "定位反转区间[left,right]，反转中间段后重新连接：关键是记录反转段的前驱和后继。",
+        analysis: "从第一性原理看，反转链表的子区间就是206题的局部版本。先走到left-1位置（前驱节点pre），然后反转left到right之间的节点（与206相同的逐个翻转），最后将反转后的段接回原链：pre.next指向反转后的新头，反转段的新尾指向right+1节点。用dummy头节点处理left=1的情况。",
+        code: "def reverseBetween(self, head, left, right):\n    dummy = ListNode(0, head)\n    pre = dummy\n    # 走到left的前驱\n    for _ in range(left - 1):\n        pre = pre.next\n    # 反转left到right之间的节点\n    curr = pre.next\n    prev = None\n    for _ in range(right - left + 1):\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    # 重新连接：pre.next -> 反转后头，反转后尾 -> curr\n    pre.next.next = curr  # 反转段尾接后继\n    pre.next = prev       # 前驱接反转段头\n    return dummy.next"
+      },
+      {
+        id: 25,
+        name: "K个一组翻转链表",
+        difficulty: "Hard",
+        essence: "每K个节点一组反转，不足K个不反转：递归/迭代地处理每组，组间重新连接。",
+        analysis: "从第一性原理看，这是206题的扩展——从反转整个链表变为每K个一组反转。每组内的反转逻辑与206完全相同，关键增加的是组间连接：前一组的尾指向当前组反转后的新头，当前组反转后的新尾指向下一组的头。递归写法最清晰：先检查剩余是否够K个，不够直接返回head；够K个则反转前K个，然后head.next=递归处理剩余部分。迭代写法用循环和指针连接。",
+        code: "def reverseKGroup(self, head, k):\n    # 检查剩余是否够k个\n    curr = head\n    count = 0\n    while curr and count < k:\n        curr = curr.next\n        count += 1\n    if count < k:\n        return head  # 不够k个，不反转\n    # 反转前k个\n    prev = None\n    curr = head\n    for _ in range(k):\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    # head反转后变成组尾，接上后续反转结果\n    head.next = self.reverseKGroup(curr, k)\n    return prev  # prev是反转后的新头"
+      },
+      {
+        id: 138,
+        name: "随机链表的复制",
+        difficulty: "Medium",
+        essence: "两次遍历：第一次在原节点后插入副本节点，第二次复制random指针，最后拆分两链表。",
+        analysis: "从第一性原理看，困难在于random指针可能指向尚未创建的节点。三种解法：(1)哈希表记录原节点到新节点的映射，两次遍历，第一次创建所有新节点，第二次设置next和random，空间O(n)；(2)交织法，在原链表每个节点后插入其副本，random指针自然可复制（原节点random的next就是新节点应指向的），最后拆分，空间O(1)。交织法利用了链表的空间局部性——副本紧挨着原件，random的偏移关系可直接复制。",
+        code: "def copyRandomList(self, head):\n    if not head:\n        return None\n    # 第一步：在每个原节点后插入副本\n    curr = head\n    while curr:\n        copy = Node(curr.val)\n        copy.next = curr.next\n        curr.next = copy\n        curr = copy.next\n    # 第二步：复制random指针\n    curr = head\n    while curr:\n        if curr.random:\n            curr.next.random = curr.random.next  # 原random的副本\n        curr = curr.next.next\n    # 第三步：拆分两链表\n    curr = head\n    copy_head = head.next\n    while curr:\n        copy = curr.next\n        curr.next = copy.next\n        copy.next = copy.next if copy.next else None\n        curr = curr.next\n    return copy_head"
+      },
+      {
+        id: 143,
+        name: "重排链表",
+        difficulty: "Medium",
+        essence: "找中点+反转后半+双指针交替合并：L0→Ln→L1→Ln-1→...的三步曲。",
+        analysis: "从第一性原理看，重排要求是将链表从两端交替取节点。这分解为三个子问题：(1)快慢指针找中点将链表分成前后两半；(2)反转后半段（因为要从后往前取）；(3)双指针交替合并两半——从前后两半各取一个节点交替连接。这三步都是链表基本操作的组合，每步O(n)，总体O(n)时间O(1)空间。",
+        code: "def reorderList(self, head):\n    if not head or not head.next:\n        return\n    # 第一步：快慢指针找中点\n    slow, fast = head, head\n    while fast.next and fast.next.next:\n        slow = slow.next\n        fast = fast.next.next\n    # 第二步：反转后半段\n    prev = None\n    curr = slow.next\n    slow.next = None  # 切断前后两半\n    while curr:\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    # 第三步：交替合并\n    first, second = head, prev\n    while second:\n        tmp1, tmp2 = first.next, second.next\n        first.next = second\n        second.next = tmp1\n        first, second = tmp1, tmp2"
+      }
+    ]
+  }
+];
+
+// 合并导出
+const hot100_part2 = [
+  ...data_connectivity_graph,
+  ...data_tree_recursion,
+  ...data_greedy,
+  ...data_prefix_hash,
+  ...data_linked_list
+];
+
+</script>
+<script>
+const data_part3 = [
+  {
+    category: "顺序约束（栈）",
+    categoryEssence: "栈的本质是「后进先出」——最近发生的约束必须最先被处理，这种时间上的嵌套关系是栈存在的根本理由。",
+    problems: [
+      {
+        id: 20,
+        name: "有效的括号",
+        difficulty: "Easy",
+        essence: "括号匹配的本质是「最近未闭合的左括号必须最先被右括号闭合」——一个严格的后进先出约束。",
+        analysis: "任何括号序列合法的充要条件是：每遇到一个右括号，它必须匹配离它最近的那个尚未匹配的左括号。这恰好是栈的LIFO语义。我们从基本事实出发——左括号只能等待右括号来关闭，而等待越久的左括号优先级越高（因为它嵌套在外层）。遍历字符串，遇到左括号就入栈（登记等待），遇到右括号就检查栈顶是否匹配（最近等待者优先关闭）。若栈空或不匹配则非法，最终栈必须清零。",
+        code: "def isValid(self, s: str) -> bool:\n    # 左右括号的映射\n    pairs = {')': '(', ']': '[', '}': '{'}\n    stack = []\n    for ch in s:\n        if ch in pairs.values():  # 左括号：入栈等待匹配\n            stack.append(ch)\n        elif ch in pairs:         # 右括号：必须匹配栈顶（最近的左括号）\n            if not stack or stack[-1] != pairs[ch]:\n                return False\n            stack.pop()\n    return not stack  # 所有左括号都必须被闭合"
+      },
+      {
+        id: 394,
+        name: "字符串解码",
+        difficulty: "Medium",
+        essence: "嵌套解码的本质是「外层需要等待内层结果才能继续」——嵌套深度越深，优先级越高，天然对应栈的LIFO。",
+        analysis: "编码字符串的嵌套结构意味着：遇到 k[...] 时，方括号内的内容必须先解码，才能与外层的字符串拼接。从第一性原理看，这是一个递归展开问题，而递归可以用栈显式模拟。关键洞察：每进入一层 [，就需要保存当前层的进度（已解码的前缀 + 重复次数），然后开始新一层的解码；遇到 ] 则回到上一层，用内层结果执行重复拼接。栈维护了「外层暂停、内层优先」的执行顺序。",
+        code: "def decodeString(self, s: str) -> str:\n    stack = []  # 每个元素: (前缀字符串, 重复次数)\n    cur_str = ''\n    cur_num = 0\n    for ch in s:\n        if ch.isdigit():\n            cur_num = cur_num * 10 + int(ch)\n        elif ch == '[':\n            # 进入新层：保存外层状态，重置当前层\n            stack.append((cur_str, cur_num))\n            cur_str = ''\n            cur_num = 0\n        elif ch == ']':\n            # 退出当前层：用内层结果拼回外层\n            prev_str, num = stack.pop()\n            cur_str = prev_str + cur_str * num\n        else:\n            cur_str += ch\n    return cur_str"
+      },
+      {
+        id: 94,
+        name: "二叉树的中序遍历",
+        difficulty: "Easy",
+        essence: "中序遍历的栈实现本质是「沿左链深入到底，回溯时处理节点再转向右子树」——深度优先的递归结构用栈显式管理返回点。",
+        analysis: "递归中序遍历的隐含机制是调用栈：每进入一个节点，先递归左子树，处理自身，再递归右子树。用显式栈模拟时，核心洞察是：沿着左子树一直走到底的过程就是不断入栈（记录返回点），到底后弹出栈顶就是回溯，处理该节点后转向其右子树重复相同逻辑。栈保存的正是「还需回来处理的节点」序列，后深入的需要先回来，符合LIFO。",
+        code: "def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:\n    res, stack = [], []\n    cur = root\n    while cur or stack:\n        # 沿左链深入到底，沿途节点入栈\n        while cur:\n            stack.append(cur)\n            cur = cur.left\n        # 回溯：弹出栈顶，处理，转向右子树\n        cur = stack.pop()\n        res.append(cur.val)\n        cur = cur.right\n    return res"
+      },
+      {
+        id: 155,
+        name: "最小栈",
+        difficulty: "Medium",
+        essence: "在O(1)内获取最小值的关键是「每个元素入栈时，同步记录当前时刻的最小值」——空间换时间，让历史最小值随栈状态同步演进。",
+        analysis: "普通栈无法O(1)取最小值，因为弹出最小值后需要重新扫描。第一性原理分析：最小值是栈状态的函数——栈在某个状态下的最小值，取决于之前所有入栈元素。关键洞察：如果我们让每个栈元素同时携带「以它为栈顶时的历史最小值」，那么任何时刻的栈顶就直接给出了当前最小值。弹出时无需重新计算，因为新栈顶已经保存了那时的最小值。这是用O(n)额外空间将查询从O(n)降到O(1)。",
+        code: "class MinStack:\n    def __init__(self):\n        # 每个元素: (值, 以该元素为栈顶时的最小值)\n        self.stack = []\n\n    def push(self, val: int) -> None:\n        if not self.stack:\n            self.stack.append((val, val))\n        else:\n            # 当前最小值 = min(新值, 之前的最小值)\n            self.stack.append((val, min(val, self.stack[-1][1])))\n\n    def pop(self) -> None:\n        self.stack.pop()\n\n    def top(self) -> int:\n        return self.stack[-1][0]\n\n    def getMin(self) -> int:\n        # 栈顶直接携带当前最小值\n        return self.stack[-1][1]"
+      }
+    ]
+  },
+  {
+    category: "单调空间的搜索（二分）",
+    categoryEssence: "二分的本质是「有序空间上的决策剪枝」——每一步利用单调性淘汰一半搜索空间，将线性搜索降维为对数搜索。",
+    problems: [
+      {
+        id: 33,
+        name: "搜索旋转排序数组",
+        difficulty: "Medium",
+        essence: "旋转数组本质是两段单调子序列的拼接——二分时必有一半是有序的，利用有序半边确定目标在哪一侧，从而持续剪枝。",
+        analysis: "旋转排序数组在断点处被分成两段各自单调的子数组。二分取mid后，左半边或右半边必有一个是严格单调的（因为旋转只引入一个断点）。第一性原理：判断哪半边有序，再检查目标是否落在有序半边的范围内——若在则搜索该半边，否则搜索另一半边。每一步都将搜索空间减半，因为单调性保证了「目标不可能在有序半边的另一侧」。O(log n)是二分在有序空间上的必然结果。",
+        code: "def search(self, nums: List[int], target: int) -> int:\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        # 左半边有序\n        if nums[lo] <= nums[mid]:\n            if nums[lo] <= target < nums[mid]:\n                hi = mid - 1  # 目标在有序左半边\n            else:\n                lo = mid + 1  # 目标在右半边\n        else:  # 右半边有序\n            if nums[mid] < target <= nums[hi]:\n                lo = mid + 1  # 目标在有序右半边\n            else:\n                hi = mid - 1  # 目标在左半边\n    return -1"
+      },
+      {
+        id: 34,
+        name: "在排序数组中查找元素的第一个和最后一个位置",
+        difficulty: "Medium",
+        essence: "找边界就是找「最后一个<target的位置」和「第一个>target的位置」——将边界问题转化为两次二分判定。",
+        analysis: "在有序数组中找target的左右边界，本质是找两个临界点：左边界是「第一个等于target的位置」，右边界是「最后一个等于target的位置」。第一性原理：直接找等于target的位置无法用标准二分精确收敛，但我们可以转换视角——左边界等价于「第一个不小于target的位置」，右边界等价于「最后一个不大于target的位置」。这是两个经典的下界/上界二分问题。通过两次二分分别求下界和上界，每次O(log n)，总复杂度O(log n)。",
+        code: "def searchRange(self, nums: List[int], target: int) -> List[int]:\n    def lower_bound(t):\n        # 找第一个 >= t 的位置\n        lo, hi = 0, len(nums)\n        while lo < hi:\n            mid = (lo + hi) // 2\n            if nums[mid] < t:\n                lo = mid + 1\n            else:\n                hi = mid\n        return lo\n\n    def upper_bound(t):\n        # 找第一个 > t 的位置\n        lo, hi = 0, len(nums)\n        while lo < hi:\n            mid = (lo + hi) // 2\n            if nums[mid] <= t:\n                lo = mid + 1\n            else:\n                hi = mid\n        return lo\n\n    left = lower_bound(target)\n    if left == len(nums) or nums[left] != target:\n        return [-1, -1]\n    return [left, upper_bound(target) - 1]"
+      },
+      {
+        id: 153,
+        name: "寻找旋转排序数组中的最小值",
+        difficulty: "Medium",
+        essence: "最小值位于旋转断点的右侧——通过与右端点比较，判断最小值在mid的哪一侧，持续缩小搜索范围。",
+        analysis: "旋转数组的最小值就是断点所在位置，它将数组分成了「左大右小」的两段。第一性原理：如果nums[mid] > nums[hi]，说明mid在左段（较大段），最小值一定在mid右侧；如果nums[mid] <= nums[hi]，说明mid在右段（较小段），最小值在mid及左侧。每次比较都在利用「右半段的值一定小于左半段」这一单调性事实来剪枝。当lo==hi时，就锁定了最小值位置。",
+        code: "def findMin(self, nums: List[int]) -> int:\n    lo, hi = 0, len(nums) - 1\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if nums[mid] > nums[hi]:\n            # mid在左段，最小值在右侧\n            lo = mid + 1\n        else:\n            # mid在右段，最小值在mid或左侧\n            hi = mid\n    return nums[lo]"
+      },
+      {
+        id: 4,
+        name: "寻找两个正序数组的中位数",
+        difficulty: "Hard",
+        essence: "中位数是「将全体分成等大的两半」的分界点——在两个有序数组上二分搜索这个分界点，利用有序性O(1)验证分割的有效性。",
+        analysis: "中位数的定义是：左半边的所有数 <= 右半边的所有数，且左右等大（或差1）。两个有序数组A和B合并后找中位数，等价于在A中取i个元素、B中取j个元素放入左半边，使得i+j恰好为总数一半，且A[i-1]<=B[j]且B[j-1]<=A[i]。第一性原理：在A上二分i的位置，j由总数半减i唯一确定。每次二分只需O(1)验证交叉条件。这样避免了O(m+n)的合并，降为O(log(min(m,n)))。核心洞察：有序性使得分割的有效性可以在O(1)内判定。",
+        code: "def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:\n    # 保证在较短的数组上二分\n    if len(nums1) > len(nums2):\n        nums1, nums2 = nums2, nums1\n    m, n = len(nums1), len(nums2)\n    lo, hi = 0, m\n    half = (m + n + 1) // 2\n    while lo <= hi:\n        i = (lo + hi) // 2  # nums1取i个\n        j = half - i         # nums2取j个，保证左半边总数=half\n        # 交叉条件验证\n        left1 = nums1[i-1] if i > 0 else float('-inf')\n        right1 = nums1[i] if i < m else float('inf')\n        left2 = nums2[j-1] if j > 0 else float('-inf')\n        right2 = nums2[j] if j < n else float('inf')\n        if left1 <= right2 and left2 <= right1:\n            # 找到合法分割\n            if (m + n) % 2:\n                return max(left1, left2)\n            return (max(left1, left2) + min(right1, right2)) / 2\n        elif left1 > right2:\n            hi = i - 1  # A取太多，左移\n        else:\n            lo = i + 1  # A取太少，右移\n    return 0.0"
+      },
+      {
+        id: 69,
+        name: "x的平方根",
+        difficulty: "Easy",
+        essence: "sqrt(x)是最大的使得mid*mid<=x的整数——在有序整数空间上二分搜索这个临界点。",
+        analysis: "平方根的整数部分满足一个单调性：如果k*k<=x，则所有小于k的整数也满足；如果k*k>x，则所有大于k的整数也满足。这意味着答案空间具有单调性——存在一个临界值ans，使得ans*ans<=x但(ans+1)*(ans+1)>x。第一性原理：这就是在有序空间上找上界的二分问题。我们在[0, x]上二分，每次根据mid*mid与x的比较结果剪枝，O(log x)步收敛到答案。",
+        code: "def mySqrt(self, x: int) -> int:\n    if x <= 1:\n        return x\n    lo, hi = 1, x\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        sq = mid * mid\n        if sq == x:\n            return mid\n        elif sq < x:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return hi  # hi是最后一个满足hi*hi<=x的"
+      },
+      {
+        id: 162,
+        name: "寻找峰值",
+        difficulty: "Medium",
+        essence: "沿着上升方向走必然到达峰值——局部单调性提供了方向信息，二分剪枝的依据是「mid的邻居关系告诉你峰值在哪一侧」。",
+        analysis: "峰值定义为严格大于相邻元素的值。关键洞察：如果nums[mid] < nums[mid+1]，则mid右侧必存在峰值——因为从mid+1开始是上升的，数组最终会下降（边界视为负无穷），所以上升序列必然在某处转折，转折点就是峰值。同理，如果nums[mid] > nums[mid+1]，峰值在mid或左侧。第一性原理：我们不需要知道全局结构，只需利用局部比较提供方向信息。每次比较都淘汰一半搜索空间，O(log n)收敛。",
+        code: "def findPeakElement(self, nums: List[int]) -> int:\n    lo, hi = 0, len(nums) - 1\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if nums[mid] < nums[mid + 1]:\n            # 上升方向，峰值在右侧\n            lo = mid + 1\n        else:\n            # 下降方向，峰值在mid或左侧\n            hi = mid\n    return lo"
+      },
+      {
+        id: 35,
+        name: "搜索插入位置",
+        difficulty: "Easy",
+        essence: "插入位置就是「第一个不小于target的索引」——标准的下界二分搜索，有序性的最直接应用。",
+        analysis: "在有序数组中，target的插入位置等价于「第一个>=target的元素的索引」。如果所有元素都小于target，则插入位置为数组末尾。第一性原理：这是二分搜索最基本的形式——利用有序性，每次比较target与mid处元素，如果nums[mid]<target则答案在右半边，否则答案在mid或左半边。当搜索区间收缩到一点时，就是答案。O(log n)是单调空间上搜索的必然复杂度。",
+        code: "def searchInsert(self, nums: List[int], target: int) -> int:\n    lo, hi = 0, len(nums)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if nums[mid] < target:\n            lo = mid + 1  # 答案在右侧\n        else:\n            hi = mid      # mid可能是答案，保留\n    return lo"
+      },
+      {
+        id: 367,
+        name: "有效的完全平方数",
+        difficulty: "Easy",
+        essence: "完全平方数n存在整数k使得k*k=n——在有序整数空间上二分搜索这个k，与平方根问题的验证版等价。",
+        analysis: "判断n是否为完全平方数，本质是在[1, n]中搜索是否存在k使得k*k==n。第一性原理：k*k关于k是严格单调递增的，因此搜索空间有序，可以用二分。每次计算mid*mid，与n比较即可剪枝。与求平方根的区别仅在于：平方根找下界，这里要求精确匹配。如果二分结束时没有精确命中，则n不是完全平方数。O(log n)复杂度。",
+        code: "def isPerfectSquare(self, num: int) -> bool:\n    if num < 2:\n        return True\n    lo, hi = 2, num // 2  # 优化上界\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        sq = mid * mid\n        if sq == num:\n            return True\n        elif sq < num:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return False"
+      }
+    ]
+  },
+  {
+    category: "二值信息的并行处理（位运算）",
+    categoryEssence: "位运算的本质是「将整数视为独立二值通道的并行集合」——用一个整数的每一位同时处理多个布尔判断，实现空间与时间的双重压缩。",
+    problems: [
+      {
+        id: 136,
+        name: "只出现一次的数字",
+        difficulty: "Easy",
+        essence: "XOR的自反性——a⊕a=0消去所有成对元素，a⊕0=a保留孤立项——将「配对消除」编码为位级并行操作。",
+        analysis: "题目要求线性时间常数空间找出唯一出现一次的数。第一性原理：XOR运算有三个基本性质——恒等律(a⊕0=a)、自反律(a⊕a=0)、交换结合律。将所有数异或起来，成对出现的数因为自反律全部归零，最终只剩那个孤立的数。这是位运算最优雅的应用：我们不需要知道每个数出现几次，只需要利用XOR的代数结构让成对数自动湮灭。O(n)时间、O(1)空间，且一次遍历处理了所有位。",
+        code: "def singleNumber(self, nums: List[int]) -> int:\n    result = 0\n    for num in nums:\n        result ^= num  # 成对数异或归零，孤立项保留\n    return result"
+      },
+      {
+        id: 191,
+        name: "位1的个数",
+        difficulty: "Easy",
+        essence: "n&(n-1)每次消除最低位的1——从「数位」降维到「数1的个数」，避免了逐位检查的浪费。",
+        analysis: "最直观的方法是逐位检查32次，但第一性原理告诉我们：我们关心的不是每一位的值，而是1的个数。n&(n-1)的关键性质是：它恰好清除n的最低位1，其余位不变。因此操作次数等于1的个数。例如n=10100，n-1=10011，n&(n-1)=10000，一次操作消除了最低的1。这种方法的复杂度是O(k)（k为1的个数），在稀疏位情况下远优于O(32)的逐位检查。核心洞察：跳过0位，只处理1位。",
+        code: "def hammingWeight(self, n: int) -> int:\n    count = 0\n    while n:\n        n &= n - 1  # 每次消除最低位的1\n        count += 1\n    return count"
+      },
+      {
+        id: 338,
+        name: "比特位计数",
+        difficulty: "Medium",
+        essence: "i的二进制1个数 = i去掉最低位1后的1个数 + 1——利用已计算的小值结果推导大值，位运算与动态规划的完美融合。",
+        analysis: "要求0到n每个数的二进制1的个数。第一性原理：i的二进制表示比i>>1（右移一位）只多了最低位；或者用i&(i-1)去掉最低位1后，1的个数恰好少1。即dp[i] = dp[i>>1] + (i&1) 或 dp[i] = dp[i&(i-1)] + 1。这是一个递推关系：每个数的答案可以从更小的数推导出来。关键洞察：i&(i-1)严格小于i，所以dp[i&(i-1)]一定先于dp[i]被计算。一遍扫描即可完成，O(n)时间。",
+        code: "def countBits(self, n: int) -> List[int]:\n    dp = [0] * (n + 1)\n    for i in range(1, n + 1):\n        # 去掉最低位1后的值已计算，加1即可\n        dp[i] = dp[i & (i - 1)] + 1\n    return dp"
+      },
+      {
+        id: 461,
+        name: "汉明距离",
+        difficulty: "Easy",
+        essence: "汉明距离就是两个数XOR结果中1的个数——差异信息被XOR压缩到一个整数中，再数1即可。",
+        analysis: "汉明距离定义为两个数二进制表示中不同位的个数。第一性原理：XOR运算对每一位执行不等判断——相同位异或为0，不同位异或为1。因此x⊕y的结果中，1的个数恰好就是x和y不同位的个数。问题被分解为两步：先用XOR将差异编码为一个整数，再用数1的技巧统计。每一步都是位运算基本操作的直接应用，体现了「用二值通道并行处理信息」的精髓。",
+        code: "def hammingDistance(self, x: int, y: int) -> int:\n    xor = x ^ y  # 差异编码：不同位为1\n    count = 0\n    while xor:\n        xor &= xor - 1  # 逐个消除1\n        count += 1\n    return count"
+      }
+    ]
+  },
+  {
+    category: "空间变换（矩阵）",
+    categoryEssence: "矩阵问题的本质是「坐标变换」——将二维坐标映射为新的二维坐标，关键在于发现变换的代数规律和不变量。",
+    problems: [
+      {
+        id: 48,
+        name: "旋转图像",
+        difficulty: "Medium",
+        essence: "90度旋转等价于「先转置再水平翻转」——将一个复合坐标变换分解为两个简单变换的叠加。",
+        analysis: "顺时针旋转90度的坐标变换是(i,j)→(j,n-1-i)。直接实现需要额外空间，但第一性原理告诉我们：复合变换可以分解为简单变换的链式组合。转置(i,j)→(j,i)加上水平翻转(j,i)→(j,n-1-i)，恰好等于旋转90度的效果。验证：转置交换行列索引，水平翻转再反转列索引，组合结果与旋转一致。这样在原矩阵上做两次简单操作即可，不需要额外空间。核心洞察：找到等价但更简单的变换分解。",
+        code: "def rotate(self, matrix: List[List[int]]) -> None:\n    n = len(matrix)\n    # 第一步：转置 (i,j) -> (j,i)\n    for i in range(n):\n        for j in range(i + 1, n):\n            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n    # 第二步：水平翻转 (i,j) -> (i, n-1-j)\n    for i in range(n):\n        for j in range(n // 2):\n            matrix[i][j], matrix[i][n-1-j] = matrix[i][n-1-j], matrix[i][j]"
+      },
+      {
+        id: 54,
+        name: "螺旋矩阵",
+        difficulty: "Medium",
+        essence: "螺旋遍历是「沿边界行走，走到尽头就收缩边界」——用四个边界变量刻画当前可走范围，方向切换由边界触碰触发。",
+        analysis: "螺旋遍历的轨迹是：右→下→左→上→右→...，每走完一个方向，对应的边界就收缩一格。第一性原理：用top/bottom/left/right四个变量表示当前「未遍历区域的边界」。每次沿一个方向走到边界，收缩该边界，切换到下一个方向。当边界交叉（top>bottom或left>right）时停止。关键洞察：螺旋的本质不是复杂的路径规划，而是「可走范围逐步缩小」这一不变量——每一步都在消耗边界。",
+        code: "def spiralOrder(self, matrix: List[List[int]]) -> List[int]:\n    if not matrix:\n        return []\n    top, bottom = 0, len(matrix) - 1\n    left, right = 0, len(matrix[0]) - 1\n    res = []\n    while top <= bottom and left <= right:\n        # 向右走\n        for j in range(left, right + 1):\n            res.append(matrix[top][j])\n        top += 1\n        # 向下走\n        for i in range(top, bottom + 1):\n            res.append(matrix[i][right])\n        right -= 1\n        # 向左走（需检查边界）\n        if top <= bottom:\n            for j in range(right, left - 1, -1):\n                res.append(matrix[bottom][j])\n            bottom -= 1\n        # 向上走（需检查边界）\n        if left <= right:\n            for i in range(bottom, top - 1, -1):\n                res.append(matrix[i][left])\n            left += 1\n    return res"
+      },
+      {
+        id: 73,
+        name: "矩阵置零",
+        difficulty: "Medium",
+        essence: "零行的标记和零列的标记可以复用矩阵自身的第一行和第一列——将O(m+n)额外空间压缩到O(1)。",
+        analysis: "如果一个元素为0，其所在行和列都要置零。朴素方法用O(m+n)数组记录哪些行和列需要置零。第一性原理：标记空间可以从哪里借？矩阵的第一行和第一列恰好可以充当行标记和列标记。先用两个布尔变量记录第一行和第一列本身是否需要置零，然后遍历其余元素，遇到0就在对应的第一行和第一列位置标记。第二次遍历根据标记置零，最后处理第一行和第一列。关键洞察：借用已有空间存储元信息，将空间开销从O(m+n)降到O(1)。",
+        code: "def setZeroes(self, matrix: List[List[int]]) -> None:\n    m, n = len(matrix), len(matrix[0])\n    # 记录第一行和第一列是否原本含0\n    first_row_zero = any(matrix[0][j] == 0 for j in range(n))\n    first_col_zero = any(matrix[i][0] == 0 for i in range(m))\n    # 用第一行/列作为标记空间\n    for i in range(1, m):\n        for j in range(1, n):\n            if matrix[i][j] == 0:\n                matrix[i][0] = 0  # 标记第i行\n                matrix[0][j] = 0  # 标记第j列\n    # 根据标记置零（先处理非首行首列）\n    for i in range(1, m):\n        if matrix[i][0] == 0:\n            for j in range(n):\n                matrix[i][j] = 0\n    for j in range(1, n):\n        if matrix[0][j] == 0:\n            for i in range(m):\n                matrix[i][j] = 0\n    # 处理第一行和第一列\n    if first_row_zero:\n        for j in range(n):\n            matrix[0][j] = 0\n    if first_col_zero:\n        for i in range(m):\n            matrix[i][0] = 0"
+      },
+      {
+        id: 240,
+        name: "搜索二维矩阵II",
+        difficulty: "Medium",
+        essence: "从右上角出发，每次比较可以确定性排除一行或一列——矩阵的行列双单调性提供了方向决策的充分信息。",
+        analysis: "矩阵满足每行从左到右递增、每列从上到下递增。第一性原理：如果从左上角出发，向右和向下都是增大方向，无法决策；但从右上角出发，向左是减小、向下是增大，两个方向提供相反的信息。如果当前值>target，则当前列下方更大，只能向左走（排除当前列）；如果当前值<target，则当前行左边更小，只能向下走（排除当前行）。每一步排除一行或一列，最多走m+n步。关键洞察：选择正确的起点，使两个方向提供互斥的决策信息。",
+        code: "def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:\n    if not matrix or not matrix[0]:\n        return False\n    m, n = len(matrix), len(matrix[0])\n    # 从右上角出发\n    i, j = 0, n - 1\n    while i < m and j >= 0:\n        if matrix[i][j] == target:\n            return True\n        elif matrix[i][j] > target:\n            j -= 1  # 排除当前列\n        else:\n            i += 1  # 排除当前行\n    return False"
+      },
+      {
+        id: 75,
+        name: "颜色分类",
+        difficulty: "Medium",
+        essence: "三路划分的本质是「用两个边界将数组切成三个区间」——一次遍历，每个元素根据值落入对应区间，交换即归类。",
+        analysis: "将数组按0、1、2排序（荷兰国旗问题）。第一性原理：数组需要被分成三个连续区间[0的区间|1的区间|2的区间]，用两个指针lo和hi标记0区和2区的边界。遍历时，遇到0交换到前面（扩展0区），遇到2交换到后面（扩展2区），遇到1跳过（1区自然留在中间）。关键洞察：我们不需要对三个值分别排序，只需要维护两个边界——0区的右界和2区的左界。一次遍历，O(n)时间，O(1)空间。",
+        code: "def sortColors(self, nums: List[int]) -> None:\n    lo, hi = 0, len(nums) - 1\n    i = 0\n    while i <= hi:\n        if nums[i] == 0:\n            nums[i], nums[lo] = nums[lo], nums[i]\n            lo += 1\n            i += 1\n        elif nums[i] == 2:\n            nums[i], nums[hi] = nums[hi], nums[i]\n            hi -= 1\n            # 交换来的元素未检查，i不前进\n        else:\n            i += 1  # 1自然留在中间"
+      }
+    ]
+  },
+  {
+    category: "堆：动态有序集（优先队列/分治）",
+    categoryEssence: "堆的本质是「动态维护集合的最值」——插入和取最值都是O(log n)，在需要反复取极值的场景中优于排序。",
+    problems: [
+      {
+        id: 215,
+        name: "数组中的第K个最大元素",
+        difficulty: "Medium",
+        essence: "第K大就是「比它大的只有K-1个」——用小顶堆维护前K大的候选集，堆顶就是答案。",
+        analysis: "找第K大元素，排序需要O(n log n)，但第一性原理告诉我们：我们不需要完全排序，只需要知道第K大。维护一个大小为K的小顶堆，堆顶是当前K个元素中最小的——也就是第K大的候选。遍历数组时，如果当前元素>堆顶，说明它应该进入前K，弹出堆顶并插入新元素。最终堆顶就是第K大。时间O(n log K)，空间O(K)。当K远小于n时，远优于排序。核心洞察：不需要全局有序，只需局部K个元素的有序。",
+        code: "import heapq\n\ndef findKthLargest(self, nums: List[int], k: int) -> int:\n    # 小顶堆维护前K大的元素，堆顶=第K大\n    heap = []\n    for num in nums:\n        heapq.heappush(heap, num)\n        if len(heap) > k:\n            heapq.heappop(heap)  # 弹出最小的，保留大的\n    return heap[0]  # 堆顶即第K大"
+      },
+      {
+        id: 23,
+        name: "合并K个升序链表",
+        difficulty: "Hard",
+        essence: "K路归并的核心是「每次取K个候选中的最小值」——堆天然维护这个动态最小值查询。",
+        analysis: "合并K个有序链表，每次需要从K个链表的当前头节点中选出最小的一个。第一性原理：这是一个K路选择问题——每一步从K个候选中取最小值，取完后该链表的下一个节点加入候选集。如果每次扫描K个候选找最小值，复杂度O(K) per step，总O(nK)。用最小堆维护K个候选，每次取堆顶O(log K)，插入O(log K)，总O(n log K)。核心洞察：堆将「动态集合上的重复最值查询」从O(K)降到O(log K)。",
+        code: "import heapq\n\ndef mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:\n    # 最小堆：(节点值, 链表索引, 节点)\n    heap = []\n    for i, node in enumerate(lists):\n        if node:\n            heapq.heappush(heap, (node.val, i, node))\n    dummy = cur = ListNode(0)\n    while heap:\n        val, i, node = heapq.heappop(heap)  # 取当前最小\n        cur.next = node\n        cur = cur.next\n        if node.next:  # 该链表的下一个节点入堆\n            heapq.heappush(heap, (node.next.val, i, node.next))\n    return dummy.next"
+      },
+      {
+        id: 169,
+        name: "多数元素",
+        difficulty: "Easy",
+        essence: "多数元素出现超过半数——用抵消法，不同元素成对消灭，最后剩下的一定是多数。",
+        analysis: "多数元素定义为出现次数>⌊n/2⌋的元素。第一性原理：如果把每个多数元素和一个非多数元素配对消去，多数元素一定会剩下，因为它的数量严格大于其他所有元素之和。Boyer-Moore投票法正是这个思路：维护一个候选者和计数器，遇到相同则计数+1，遇到不同则计数-1（抵消），计数归零时换候选者。最终剩下的候选者就是多数元素。O(n)时间，O(1)空间。核心洞察：多数的「超过半数」性质保证了它在全局抵消中不可能被完全消灭。",
+        code: "def majorityElement(self, nums: List[int]) -> int:\n    candidate = None\n    count = 0\n    for num in nums:\n        if count == 0:\n            candidate = num  # 重置候选者\n            count = 1\n        elif num == candidate:\n            count += 1  # 同阵营+1\n        else:\n            count -= 1  # 异阵营抵消\n    return candidate  # 多数元素必然存活"
+      },
+      {
+        id: 287,
+        name: "寻找重复数",
+        difficulty: "Medium",
+        essence: "数组值域[1,n]且含重复——值可以视为指针，数组变成链表，重复值造成环，Floyd找环入口即重复数。",
+        analysis: "n+1个数的值域为[1,n]，由鸽巢原理必存在重复。第一性原理：把每个位置的值看成指向下一个位置的指针，数组就变成了一个链表。因为有重复值，意味着至少两个位置指向同一个下一位置，即链表有环。环的入口节点就是那个被多个位置指向的重复值。用Floyd快慢指针找环入口：快指针走两步、慢指针走一步，相遇后重置一个指针到起点，两者同步走，再次相遇即为环入口。O(n)时间，O(1)空间。核心洞察：值域限制使数组可以被解读为图结构，重复值等价于图中的入度>1的节点，即环入口。",
+        code: "def findDuplicate(self, nums: List[int]) -> int:\n    # Floyd判圈：快慢指针找相遇点\n    slow = fast = 0\n    while True:\n        slow = nums[slow]       # 慢指针走一步\n        fast = nums[nums[fast]] # 快指针走两步\n        if slow == fast:\n            break\n    # 找环入口=重复数\n    slow = 0\n    while slow != fast:\n        slow = nums[slow]\n        fast = nums[fast]\n    return slow"
+      }
+    ]
+  }
+];
+
+</script>
+
+<script>
+// Merge all data
+const allCategories = [
+  ...(data_hot100_part1 || []),
+  ...(hot100_part2 || []),
+  ...(data_part3 || [])
+];
+
+// Deduplicate by category name (keep first occurrence)
+const seen = new Set();
+const categories = allCategories.filter(c => {
+  if (seen.has(c.category)) return false;
+  seen.add(c.category);
+  return true;
+});
+
+// Deduplicate problems by id within each category
+categories.forEach(cat => {
+  const pidSet = new Set();
+  cat.problems = cat.problems.filter(p => {
+    if (pidSet.has(p.id)) return false;
+    pidSet.add(p.id);
+    return true;
+  });
+});
+
+const emojis = ['🌊','🪟','🤝','📈','🌳','🕸️','🌲','💰','🧮','🔗','📚','🔍','💡','🔲','⛰️'];
+
+// Stats
+let totalProblems = 0, easyC = 0, medC = 0, hardC = 0;
+categories.forEach(c => {
+  c.problems.forEach(p => {
+    totalProblems++;
+    if (p.difficulty === 'Easy') easyC++;
+    else if (p.difficulty === 'Medium') medC++;
+    else hardC++;
+  });
+});
+document.getElementById('totalCount').textContent = totalProblems;
+document.getElementById('catCount').textContent = categories.length;
+document.getElementById('easyCount').textContent = easyC;
+document.getElementById('medCount').textContent = medC;
+document.getElementById('hardCount').textContent = hardC;
+
+// Sidebar nav
+const navEl = document.getElementById('sidebarNav');
+categories.forEach((cat, i) => {
+  const div = document.createElement('div');
+  div.className = 'cat-item';
+  div.innerHTML = `<span class="cat-emoji">${emojis[i] || '📌'}</span>${cat.category}<span class="cat-count">${cat.problems.length}</span>`;
+  div.onclick = () => {
+    document.getElementById('cat-' + i)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    closeMobile();
+  };
+  navEl.appendChild(div);
+});
+
+// Render content
+const contentEl = document.getElementById('content');
+categories.forEach((cat, ci) => {
+  const section = document.createElement('div');
+  section.className = 'cat-section';
+  section.id = 'cat-' + ci;
+  section.innerHTML = `
+    <div class="cat-header">
+      <h2>${emojis[ci] || '📌'} ${cat.category}</h2>
+      <div class="cat-essence">${cat.categoryEssence}</div>
+    </div>
+  `;
+  cat.problems.forEach((p, pi) => {
+    const card = document.createElement('div');
+    card.className = 'problem-card';
+    card.dataset.id = p.id;
+    card.dataset.name = p.name;
+    card.dataset.essence = p.essence || '';
+    card.dataset.analysis = p.analysis || '';
+
+    const diffClass = p.difficulty === 'Easy' ? 'easy' : p.difficulty === 'Hard' ? 'hard' : 'medium';
+
+    card.innerHTML = `
+      <div class="problem-header">
+        <span class="problem-id">#${p.id}</span>
+        <span class="problem-name">${p.name}</span>
+        <span class="difficulty ${diffClass}">${p.difficulty}</span>
+        <span class="toggle-icon">▶</span>
+      </div>
+      <div class="problem-body">
+        <div class="problem-content">
+          <div class="essence-box">
+            <div class="label">🎯 第一性原理</div>
+            <div class="text">${escapeHtml(p.essence)}</div>
+          </div>
+          <div class="analysis">${escapeHtml(p.analysis)}</div>
+          <div class="code-section">
+            <div class="code-header">
+              <span class="code-label">Python</span>
+              <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            </div>
+            <pre><code class="language-python">${escapeHtml(p.code)}</code></pre>
+          </div>
+        </div>
+      </div>
+    `;
+
+    card.querySelector('.problem-header').onclick = () => {
+      card.classList.toggle('open');
+      if (card.classList.contains('open') && !card.dataset.highlighted) {
+        card.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+        card.dataset.highlighted = '1';
+      }
+    };
+
+    section.appendChild(card);
+  });
+  contentEl.appendChild(section);
+});
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyCode(btn) {
+  const code = btn.closest('.code-section').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已复制 ✓';
+    setTimeout(() => btn.textContent = '复制', 1500);
+  });
+}
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.problem-card').forEach(card => {
+    const match = !q ||
+      card.dataset.id.toString().includes(q) ||
+      card.dataset.name.toLowerCase().includes(q) ||
+      card.dataset.essence.toLowerCase().includes(q) ||
+      card.dataset.analysis.toLowerCase().includes(q);
+    card.style.display = match ? '' : 'none';
+  });
+  // Hide empty category sections
+  document.querySelectorAll('.cat-section').forEach(sec => {
+    const visible = sec.querySelectorAll('.problem-card:not([style*="display: none"])');
+    sec.style.display = visible.length ? '' : 'none';
+  });
+});
+
+// Sidebar active state
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = e.target.id.replace('cat-','');
+      document.querySelectorAll('.cat-item').forEach((item,i) => {
+        item.classList.toggle('active', i == idx);
+      });
+    }
+  });
+}, { threshold: 0.1 });
+categories.forEach((_, i) => {
+  const el = document.getElementById('cat-' + i);
+  if (el) observer.observe(el);
+});
+
+// Progress bar
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('backTop').classList.toggle('visible', h.scrollTop > 400);
+});
+document.getElementById('backTop').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+// Mobile menu
+function closeMobile() {
+  document.getElementById('sidebar').classList.remove('open');
+}
+document.getElementById('menuToggle').onclick = () => {
+  document.getElementById('sidebar').classList.toggle('open');
+};
+</script>
+</body>
+</html>
