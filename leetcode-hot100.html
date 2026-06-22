@@ -1370,189 +1370,86 @@ const categoryTemplates = {
   "信息的前向流动 (动态规划)": {
     title: "DP统一框架：状态 → 转移 → 初始化",
     explain: "<strong>核心不变量</strong>：dp[i] 表示考虑前i个元素时的最优解（或方案数等）。<br><br><strong>三步走</strong>：<br>• <strong>定义状态</strong>：dp[i]代表什么？需要几个维度？<br>• <strong>状态转移</strong>：dp[i]如何从子问题推导？从哪几个前置状态来？<br>• <strong>初始化+遍历顺序</strong>：base case是什么？遍历顺序保证依赖已计算？<br><br><strong>常见子类型</strong>：线性DP（爬楼梯/打家劫舍）、背包（0-1/完全）、LIS/LCS、区间DP、树形DP",
-    code: "def dp_framework(items):\n    # 1. 定义状态\n    n = len(items)\n    dp = [初始值] * (n + 1)\n    dp[0] = base_case  # 边界条件\n\n    # 2. 状态转移（遍历顺序保证依赖已计算）\n    for i in range(1, n + 1):\n        for choice in all_choices:  # 枚举所有决策\n            dp[i] = 最优(dp[i], dp[前置状态] + 代价)\n\n    # 3. 返回答案\n    return dp[n]  # 或 max(dp) 等"
+    code: "def dp_framework(items):\n    n = len(items)\n    dp = [\u521d\u59cb\u503c] * (n + 1)\n    dp[0] = base_case\n    for i in range(1, n + 1):\n        for choice in all_choices:\n            dp[i] = \u6700\u4f18(dp[i], dp[\u524d\u7f6e\u72b6\u6001] + \u4ee3\u4ef7)\n    return dp[n]"
   },
-  "连通性的探索 (图遍历/并查集)": {
-    title: "BFS/DFS/并查集统一框架",
-    explain: "<strong>核心不变量</strong>：图问题本质是探索连通分量——BFS按层扩展，DFS沿路径深入，并查集用路径压缩维护等价类。<br><br><strong>选型依据</strong>：<br>• <strong>BFS</strong>：最短路径（无权图）、层序遍历、拓扑排序<br>• <strong>DFS</strong>：连通分量计数、路径搜索、回溯、检测环<br>• <strong>并查集</strong>：动态连通性、合并集合、最小生成树<br><br><strong>并查集优化</strong>：路径压缩（find时扁平化）+ 按秩合并（矮树挂高树），均摊O(α(n))≈O(1)",
-    code: "# BFS\nfrom collections import deque\ndef bfs(grid, start):\n    q = deque([start])\n    visited = {start}\n    while q:\n        node = q.popleft()\n        for nb in neighbors(node):\n            if valid(nb) and nb not in visited:\n                visited.add(nb)\n                q.append(nb)\n\n# 并查集\nclass UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.rank = [0] * n\n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])  # 路径压缩\n        return self.parent[x]\n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py: return False\n        if self.rank[px] < self.rank[py]: px, py = py, px  # 按秩合并\n        self.parent[py] = px\n        if self.rank[px] == self.rank[py]: self.rank[px] += 1\n        return True"
-  },
-  "树形递归 (二叉树)": {
-    title: "二叉树递归统一框架",
-    explain: "<strong>核心不变量</strong>：二叉树问题 = 子问题分解——左右子树的返回值组合成当前节点的答案。<br><br><strong>递归三要素</strong>：<br>• <strong>终止条件</strong>：空节点返回什么<br>• <strong>递归调用</strong>：对左右子树分别求解<br>• <strong>后处理</strong>：用子树结果组合当前节点的答案<br><br><strong>遍历模式</strong>：前序（根左右，自顶向下传参）、中序（左根右，BST有序性）、后序（左右根，自底向上返回）、层序（BFS按层处理）",
-    code: "def tree_framework(root):\n    # 终止条件\n    if not root:\n        return base_value\n\n    # 递归求解子问题\n    left = tree_framework(root.left)\n    right = tree_framework(root.right)\n\n    # 组合子树结果 + 当前节点\n    return combine(left, right, root.val)\n\n# 层序BFS\nfrom collections import deque\ndef level_order(root):\n    if not root: return []\n    q, res = deque([root]), []\n    while q:\n        level = []\n        for _ in range(len(q)):\n            node = q.popleft()\n            level.append(node.val)\n            if node.left: q.append(node.left)\n            if node.right: q.append(node.right)\n        res.append(level)\n    return res"
-  },
-  "局部最优的累积 (贪心)": {
-    title: "贪心统一框架",
-    explain: "<strong>核心不变量</strong>：如果全局最优解在每个局部决策点都必然选择某个选项，那么局部最优的累积就是全局最优。<br><br><strong>关键</strong>：证明局部选择的<strong>不可替代性</strong>——任何不选该选项的方案都不是最优解。<br><br><strong>常见模式</strong>：<br>• <strong>区间贪心</strong>：按端点排序，贪心选择不冲突的最优区间<br>• <strong>分配贪心</strong>：按某种顺序处理，每步取当前最优<br>• <strong>跳跃贪心</strong>：维护最远可达位置，贪心扩展",
-    code: "def greedy_framework(items):\n    # 排序（大多数贪心需要排序来保证局部最优的顺序）\n    items.sort(key=排序依据)\n\n    res = 初始值\n    for item in items:\n        if 满足贪心条件(item):\n            res = 更新(res, item)  # 贪心选择\n    return res"
-  },
-  "区间的代数化 (前缀和/哈希)": {
-    title: "前缀和+哈希统一框架",
-    explain: "<strong>核心不变量</strong>：前缀和将区间求和转化为端点运算O(1)，哈希表将查找从O(n)降到O(1)。<br><br><strong>前缀和</strong>：sum[i..j] = prefix[j+1] - prefix[i]，一次预处理O(n)，每次查询O(1)<br><strong>哈希</strong>：将'查找是否存在某个值'从遍历降维为查表<br><br><strong>组合模式</strong>：前缀和+哈希表 → 将'和为K的子数组'从O(n²)降到O(n)",
-    code: "# 前缀和\ndef prefix_sum(arr):\n    n = len(arr)\n    prefix = [0] * (n + 1)\n    for i in range(n):\n        prefix[i + 1] = prefix[i] + arr[i]\n    # sum[i..j] = prefix[j+1] - prefix[i]\n\n# 前缀和 + 哈希\ndef subarray_sum_k(arr, k):\n    from collections import defaultdict\n    count = defaultdict(int)\n    count[0] = 1  # 前缀和为0出现1次\n    curr = 0\n    res = 0\n    for num in arr:\n        curr += num\n        res += count[curr - k]  # 查补数\n        count[curr] += 1\n    return res"
-  },
-  "指针的操控 (链表)": {
-    title: "链表双指针统一框架",
-    explain: "<strong>核心不变量</strong>：链表只能单向逐节点访问，所有操作的本质都是指针的重定向。<br><br><strong>双指针模式</strong>：<br>• <strong>快慢指针</strong>：找中点、判环、找环入口<br>• <strong>前后指针</strong>：删除倒数第N个、反转链表<br>• <strong>双链表指针</strong>：合并有序链表、相交链表<br><br><strong>哨兵节点</strong>：dummy节点统一处理头节点特殊情况，避免空指针判断",
-    code: "# 快慢指针找中点\ndef find_middle(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    return slow  # slow即中点\n\n# 反转链表\ndef reverse(head):\n    prev = None\n    curr = head\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    return prev\n\n# 哨兵节点模式\ndef with_dummy(head):\n    dummy = ListNode(0, head)\n    # 操作...\n    return dummy.next"
-  },
-  "顺序约束（栈）": {
-    title: "栈统一框架",
-    explain: "<strong>核心不变量</strong>：栈维护'最近未处理的约束'——后进先出，保证嵌套结构中内层优先被处理。<br><br><strong>模式</strong>：<br>• <strong>括号匹配</strong>：左括号压栈，右括号弹栈比对<br>• <strong>单调栈</strong>：维护单调序列，不满足时弹栈处理<br>• <strong>表达式求值</strong>：运算符栈+操作数栈<br>• <strong>嵌套解码</strong>：遇到'['压栈保存外层状态，遇到']'弹栈合并",
-    code: "def stack_framework(s):\n    stack = []\n    for ch in s:\n        if 需要压栈(ch):\n            stack.append(ch)\n        elif 需要弹栈(ch):\n            while stack and 弹栈条件(stack[-1], ch):\n                top = stack.pop()\n                处理(top, ch)\n            stack.append(ch)  # 当前元素入栈\n    return 结果"
-  },
-  "单调空间的搜索（二分）": {
-    title: "二分搜索统一框架",
-    explain: "<strong>核心不变量</strong>：在有序空间上每步淘汰一半——将线性搜索降维为对数搜索。<br><br><strong>三种模板</strong>：<br>• <strong>精确匹配</strong>：找到即返回<br>• <strong>左边界(lower_bound)</strong>：第一个≥target，找到后right=mid-1继续收缩<br>• <strong>右边界(upper_bound)</strong>：最后一个≤target，找到后left=mid+1继续收缩<br><br><strong>二分答案</strong>：将'求最优解'转化为'验证某个值是否可行'——值域上二分+单调判断函数",
-    code: "def lower_bound(nums, target):\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = left + (right - left) // 2\n        if nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1  # >=target继续收缩\n    return left\n\n# 二分答案\ndef binary_answer(low, high, check):\n    left, right = low, high\n    while left < right:\n        mid = left + (right - left) // 2\n        if check(mid):\n            right = mid      # 可行，尝试更优\n        else:\n            left = mid + 1   # 不可行，提高标准\n    return left"
-  },
-  "二值信息的并行处理（位运算）": {
-    title: "位运算统一框架",
-    explain: "<strong>核心不变量</strong>：将整数视为独立二值通道的并行集合——每一位同时处理一个布尔判断。<br><br><strong>核心操作</strong>：<br>• n & (n-1)：消除最低位1（Brian Kernighan）<br>• n & (-n)：取出最低位1<br>• n ^ n = 0, n ^ 0 = n：异或消去成对项<br>• n >> 1：右移一位 = 除2<br><br><strong>DP+位运算</strong>：ans[i] = ans[i&(i-1)] + 1，利用已计算的小值推导大值",
-    code: "# Brian Kernighan：数1的个数\ndef count_bits(n):\n    count = 0\n    while n:\n        n &= n - 1  # 消除最低位1\n        count += 1\n    return count\n\n# XOR找唯一出现一次的数\ndef single_number(nums):\n    res = 0\n    for num in nums:\n        res ^= num\n    return res"
-  },
-  "空间变换（矩阵）": {
-    title: "矩阵操作统一框架",
-    explain: "<strong>核心不变量</strong>：矩阵问题是坐标变换——发现变换的代数规律和不变量。<br><br><strong>常见模式</strong>：<br>• <strong>旋转</strong>：90°=转置+水平翻转<br>• <strong>螺旋遍历</strong>：四边界收缩<br>• <strong>搜索</strong>：从角落出发确定性排除行/列<br>• <strong>标记</strong>：复用矩阵自身行列作标记空间",
-    code: "# 旋转90度\ndef rotate(matrix):\n    n = len(matrix)\n    # 转置\n    for i in range(n):\n        for j in range(i+1, n):\n            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n    # 水平翻转\n    for i in range(n):\n        matrix[i].reverse()\n\n# 螺旋遍历\ndef spiral(matrix):\n    t,b,l,r = 0, len(matrix)-1, 0, len(matrix[0])-1\n    res = []\n    while t <= b and l <= r:\n        for j in range(l,r+1): res.append(matrix[t][j]); t+=1\n        for i in range(t,b+1): res.append(matrix[i][r]); r-=1\n        if t<=b:\n            for j in range(r,l-1,-1): res.append(matrix[b][j]); b-=1\n        if l<=r:\n            for i in range(b,t-1,-1): res.append(matrix[i][l]); l+=1\n    return res"
-  },
-  "堆：动态有序集（优先队列/分治）": {
-    title: "堆/优先队列统一框架",
-    explain: "<strong>核心不变量</strong>：堆动态维护集合的最值——插入和取最值都是O(log n)。<br><br><strong>选型</strong>：<br>• <strong>TopK</strong>：最小堆维护前K大，堆顶即第K大<br>• <strong>K路归并</strong>：最小堆每次取K个候选中的最小值<br>• <strong>滑动窗口中位数</strong>：双堆（大顶堆+小顶堆）<br>• <strong>调度问题</strong>：堆维护可用资源",
-    code: "import heapq\n\n# TopK：最小堆维护前K大\ndef top_k(nums, k):\n    heap = []\n    for num in nums:\n        heapq.heappush(heap, num)\n        if len(heap) > k:\n            heapq.heappop(heap)  # 弹出最小的\n    return heap\n\n# K路归并\ndef merge_k_lists(lists):\n    heap = []\n    for i, node in enumerate(lists):\n        if node:\n            heapq.heappush(heap, (node.val, i, node))\n    dummy = cur = ListNode(0)\n    while heap:\n        val, i, node = heapq.heappop(heap)\n        cur.next = node\n        cur = cur.next\n        if node.next:\n            heapq.heappush(heap, (node.next.val, i, node.next))\n    return dummy.next"
-  }
-
   "区间的增量维护 (滑动窗口)": {
     title: "滑动窗口统一框架",
-    explain: "<strong>核心不变量</strong>：维护一个满足约束的窗口[left, right)，right扩张探索，left收缩恢复约束。<br><br><strong>四种变体</strong>：<br>• <strong>最小窗口</strong>：满足约束时收缩（while内更新），找最短<br>• <strong>最大窗口</strong>：违反约束时收缩（while后更新），找最长<br>• <strong>计数窗口</strong>：恰好K = atMost(K) - atMost(K-1)<br>• <strong>定长窗口</strong>：固定k滑动，每步检查/用单调队列维护最值<br><br><strong>优化路径</strong>：Counter→int/set；遍历比对→valid计数O(1)；定长最值→单调队列；max_count不缩小（LC 424）",
-    code: "def slidingWindow(s):
-    window = 用合适数据结构记录窗口  # Counter/set/dict
-    left = 0
-    for right in range(len(s)):
-        window.add(s[right])        # 扩张：纳入右端
-        while shrink_condition:     # 收缩：恢复约束
-            window.remove(s[left])
-            left += 1
-        # 更新答案（位置取决于变体类型）
-    return ans
-
-# 最小窗口：满足约束时缩，while内更新
-# 最大窗口：违反约束时缩，while后更新
-# 计数窗口：恰好K = atMost(K) - atMost(K-1)
-# 定长窗口：if right-left+1 == k: 检查/更新; window.remove(s[left]); left++"
+    explain: "<strong>核心不变量</strong>：维护一个满足约束的窗口[left, right)，right扩张探索，left收缩恢复约束。<br><br><strong>四种变体</strong>：<br>• <strong>最小窗口</strong>：满足约束时收缩（while内更新），找最短<br>• <strong>最大窗口</strong>：违反约束时收缩（while后更新），找最长<br>• <strong>计数窗口</strong>：恰好K = atMost(K) - atMost(K-1)<br>• <strong>定长窗口</strong>：固定k滑动，每步检查/用单调队列维护最值<br><br><strong>优化路径</strong>：Counter\u2192int/set\uff1b遍历比对\u2192valid计数O(1)\uff1b定长最值\u2192单调队列\uff1bmax_count不缩小（LC 424）",
+    code: "def slidingWindow(s):\n    window = \u7528\u5408\u9002\u6570\u636e\u7ed3\u6784\u8bb0\u5f55\u7a97\u53e3\n    left = 0\n    for right in range(len(s)):\n        window.add(s[right])\n        while shrink_condition:\n            window.remove(s[left])\n            left += 1\n    return ans\n\n# \u6700\u5c0f\u7a97\u53e3\uff1a\u6ee1\u8db3\u7ea6\u675f\u65f6\u7f29\uff0cwhile\u5185\u66f4\u65b0\n# \u6700\u5927\u7a97\u53e3\uff1a\u8fdd\u53cd\u7ea6\u675f\u65f6\u7f29\uff0cwhile\u540e\u66f4\u65b0\n# \u8ba1\u6570\u7a97\u53e3\uff1a\u6070\u597dK = atMost(K) - atMost(K-1)\n# \u5b9a\u957f\u7a97\u53e3\uff1aif right-left+1 == k: \u68c0\u67e5/\u66f4\u65b0"
   },
   "对称与夹逼 (双指针)": {
     title: "双指针统一框架",
     explain: "<strong>核心不变量</strong>：两个指针从不同方向/速度遍历，利用有序性或对称性每次排除一部分解空间。<br><br><strong>模式</strong>：<br>• <strong>对撞指针</strong>：两端向中间夹逼（有序数组两数之和、容器盛水）<br>• <strong>快慢指针</strong>：同向不同速（链表环、删除倒数第N个）<br>• <strong>滑动窗口</strong>：同向维护区间（见滑动窗口模板）<br><br><strong>关键</strong>：每次移动指针时，确定哪一侧移动能严格缩小搜索空间",
-    code: "# 对撞指针
-def two_pointer(arr):
-    left, right = 0, len(arr) - 1
-    while left < right:
-        if 满足条件(arr[left], arr[right]):
-            记录答案()
-        if 应该移动左指针:
-            left += 1
-        else:
-            right -= 1
-
-# 快慢指针
-def fast_slow(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-        if slow == fast:  # 环检测
-            return True
-    return False"
+    code: "def two_pointer(arr):\n    left, right = 0, len(arr) - 1\n    while left < right:\n        if \u6ee1\u8db3\u6761\u4ef6(arr[left], arr[right]):\n            \u8bb0\u5f55\u7b54\u6848()\n        if \u5e94\u8be5\u79fb\u52a8\u5de6\u6307\u9488:\n            left += 1\n        else:\n            right -= 1"
   },
   "单调性 (单调栈/队列)": {
     title: "单调栈/队列统一框架",
     explain: "<strong>核心不变量</strong>：维护单调序列——新元素来时弹出违反单调性的旧元素，弹出的瞬间就是答案的计算时刻。<br><br><strong>单调栈</strong>：找每个元素左右第一个比它大/小的元素<br>• 递减栈：找下一个更大元素（弹栈时，新元素是右侧第一个更大的）<br>• 递增栈：找下一个更小元素<br><br><strong>单调队列</strong>：滑动窗口最值<br>• 递减队列：窗口最大值（队首即最大）<br>• 递增队列：窗口最小值",
-    code: "# 单调栈：找下一个更大元素
-def next_greater(nums):
-    stack = []  # 递减栈
-    res = [-1] * len(nums)
-    for i, num in enumerate(nums):
-        while stack and nums[stack[-1]] < num:
-            res[stack.pop()] = num  # 弹出时，num是右侧第一个更大的
-        stack.append(i)
-    return res
-
-# 单调队列：滑动窗口最大值
-from collections import deque
-def max_sliding_window(nums, k):
-    q = deque()  # 存下标，递减
-    res = []
-    for i, num in enumerate(nums):
-        while q and nums[q[-1]] <= num:
-            q.pop()  # 弹出更小元素
-        q.append(i)
-        if q[0] <= i - k:
-            q.popleft()  # 移出窗口
-        if i >= k - 1:
-            res.append(nums[q[0]])
-    return res"
+    code: "def next_greater(nums):\n    stack = []\n    res = [-1] * len(nums)\n    for i, num in enumerate(nums):\n        while stack and nums[stack[-1]] < num:\n            res[stack.pop()] = num\n        stack.append(i)\n    return res\n\n# \u5355\u8c03\u961f\u5217\uff1a\u6ed1\u52a8\u7a97\u53e3\u6700\u5927\u503c\nfrom collections import deque\ndef max_sliding_window(nums, k):\n    q = deque()\n    res = []\n    for i, num in enumerate(nums):\n        while q and nums[q[-1]] <= num: q.pop()\n        q.append(i)\n        if q[0] <= i - k: q.popleft()\n        if i >= k - 1: res.append(nums[q[0]])\n    return res"
   },
   "决策树的穷举 (回溯)": {
     title: "回溯统一框架",
     explain: "<strong>核心不变量</strong>：在决策树上做DFS——每层做一个选择，走到底则回退（撤销选择），尝试下一个分支。<br><br><strong>三要素</strong>：<br>• <strong>路径</strong>：已做出的选择序列<br>• <strong>选择列表</strong>：当前位置可以做的选择<br>• <strong>结束条件</strong>：到达决策树底层，收集答案<br><br><strong>剪枝</strong>：提前判断当前路径不可能产生有效解，跳过整个子树<br>• 排序+跳过重复（组合去重）<br>• 约束检查（N皇后、括号闭合）",
-    code: "def backtrack(路径, 选择列表):
-    if 满足结束条件:
-        结果.append(路径[:])  # 注意拷贝
-        return
-    for 选择 in 选择列表:
-        if 剪枝条件(选择):  # 提前排除
-            continue
-        路径.add(选择)       # 做选择
-        backtrack(路径, 新选择列表)
-        路径.remove(选择)    # 撤销选择（回溯）
-
-# 子集：每个元素选/不选
-# 排列：全排列，交换元素
-# 组合：选k个，用start控制起始避免重复"
+    code: "def backtrack(\u8def\u5f84, \u9009\u62e9\u5217\u8868):\n    if \u6ee1\u8db3\u7ed3\u675f\u6761\u4ef6:\n        \u7ed3\u679c.append(\u8def\u5f84[:])\n        return\n    for \u9009\u62e9 in \u9009\u62e9\u5217\u8868:\n        if \u526a\u679d\u6761\u4ef6(\u9009\u62e9):\n            continue\n        \u8def\u5f84.add(\u9009\u62e9)\n        backtrack(\u8def\u5f84, \u65b0\u9009\u62e9\u5217\u8868)\n        \u8def\u5f84.remove(\u9009\u62e9)"
+  },
+  "连通性的探索 (图遍历/并查集)": {
+    title: "BFS/DFS/并查集统一框架",
+    explain: "<strong>核心不变量</strong>：图问题本质是探索连通分量——BFS按层扩展，DFS沿路径深入，并查集用路径压缩维护等价类。<br><br><strong>选型依据</strong>：<br>• <strong>BFS</strong>：最短路径（无权图）、层序遍历、拓扑排序<br>• <strong>DFS</strong>：连通分量计数、路径搜索、回溯、检测环<br>• <strong>并查集</strong>：动态连通性、合并集合、最小生成树<br><br><strong>并查集优化</strong>：路径压缩（find时扁平化）+ 按秩合并（矮树挂高树），均摊O(\u03b1(n))\u2248O(1)",
+    code: "from collections import deque\ndef bfs(grid, start):\n    q = deque([start])\n    visited = {start}\n    while q:\n        node = q.popleft()\n        for nb in neighbors(node):\n            if valid(nb) and nb not in visited:\n                visited.add(nb)\n                q.append(nb)\n\nclass UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.rank = [0] * n\n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])\n        return self.parent[x]\n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py: return False\n        if self.rank[px] < self.rank[py]: px, py = py, px\n        self.parent[py] = px\n        if self.rank[px] == self.rank[py]: self.rank[px] += 1\n        return True"
   },
   "树结构的递归分解 (二叉树)": {
     title: "二叉树递归统一框架",
     explain: "<strong>核心不变量</strong>：二叉树问题 = 子问题分解——左右子树的返回值组合成当前节点的答案。<br><br><strong>递归三要素</strong>：<br>• <strong>终止条件</strong>：空节点返回什么<br>• <strong>递归调用</strong>：对左右子树分别求解<br>• <strong>后处理</strong>：用子树结果组合当前节点的答案<br><br><strong>遍历模式</strong>：前序（根左右，自顶向下传参）、中序（左根右，BST有序性）、后序（左右根，自底向上返回）、层序（BFS按层处理）",
-    code: "def tree_framework(root):
-    # 终止条件
-    if not root:
-        return base_value
-
-    # 递归求解子问题
-    left = tree_framework(root.left)
-    right = tree_framework(root.right)
-
-    # 组合子树结果 + 当前节点
-    return combine(left, right, root.val)
-
-# 层序BFS
-from collections import deque
-def level_order(root):
-    if not root: return []
-    q, res = deque([root]), []
-    while q:
-        level = []
-        for _ in range(len(q)):
-            node = q.popleft()
-            level.append(node.val)
-            if node.left: q.append(node.left)
-            if node.right: q.append(node.right)
-        res.append(level)
-    return res"
+    code: "def tree_framework(root):\n    if not root:\n        return base_value\n    left = tree_framework(root.left)\n    right = tree_framework(root.right)\n    return combine(left, right, root.val)\n\nfrom collections import deque\ndef level_order(root):\n    if not root: return []\n    q, res = deque([root]), []\n    while q:\n        level = []\n        for _ in range(len(q)):\n            node = q.popleft()\n            level.append(node.val)\n            if node.left: q.append(node.left)\n            if node.right: q.append(node.right)\n        res.append(level)\n    return res"
   },
-
+  "局部最优的累积 (贪心)": {
+    title: "贪心统一框架",
+    explain: "<strong>核心不变量</strong>：如果全局最优解在每个局部决策点都必然选择某个选项，那么局部最优的累积就是全局最优。<br><br><strong>关键</strong>：证明局部选择的<strong>不可替代性</strong>——任何不选该选项的方案都不是最优解。<br><br><strong>常见模式</strong>：<br>• <strong>区间贪心</strong>：按端点排序，贪心选择不冲突的最优区间<br>• <strong>分配贪心</strong>：按某种顺序处理，每步取当前最优<br>• <strong>跳跃贪心</strong>：维护最远可达位置，贪心扩展",
+    code: "def greedy_framework(items):\n    items.sort(key=\u6392\u5e8f\u4f9d\u636e)\n    res = \u521d\u59cb\u503c\n    for item in items:\n        if \u6ee1\u8db3\u8d2a\u5fc3\u6761\u4ef6(item):\n            res = \u66f4\u65b0(res, item)\n    return res"
+  },
+  "区间的代数化 (前缀和/哈希)": {
+    title: "前缀和+哈希统一框架",
+    explain: "<strong>核心不变量</strong>：前缀和将区间求和转化为端点运算O(1)，哈希表将查找从O(n)降到O(1)。<br><br><strong>前缀和</strong>：sum[i..j] = prefix[j+1] - prefix[i]，一次预处理O(n)，每次查询O(1)<br><strong>哈希</strong>：将'查找是否存在某个值'从遍历降维为查表<br><br><strong>组合模式</strong>：前缀和+哈希表 \u2192 将'和为K的子数组'从O(n\u00b2)降到O(n)",
+    code: "def prefix_sum(arr):\n    n = len(arr)\n    prefix = [0] * (n + 1)\n    for i in range(n):\n        prefix[i + 1] = prefix[i] + arr[i]\n\ndef subarray_sum_k(arr, k):\n    from collections import defaultdict\n    count = defaultdict(int)\n    count[0] = 1\n    curr = 0\n    res = 0\n    for num in arr:\n        curr += num\n        res += count[curr - k]\n        count[curr] += 1\n    return res"
+  },
+  "指针的操控 (链表)": {
+    title: "链表双指针统一框架",
+    explain: "<strong>核心不变量</strong>：链表只能单向逐节点访问，所有操作的本质都是指针的重定向。<br><br><strong>双指针模式</strong>：<br>• <strong>快慢指针</strong>：找中点、判环、找环入口<br>• <strong>前后指针</strong>：删除倒数第N个、反转链表<br>• <strong>双链表指针</strong>：合并有序链表、相交链表<br><br><strong>哨兵节点</strong>：dummy节点统一处理头节点特殊情况，避免空指针判断",
+    code: "def find_middle(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    return slow\n\ndef reverse(head):\n    prev = None\n    curr = head\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    return prev"
+  },
+  "顺序约束（栈）": {
+    title: "栈统一框架",
+    explain: "<strong>核心不变量</strong>：栈维护'最近未处理的约束'——后进先出，保证嵌套结构中内层优先被处理。<br><br><strong>模式</strong>：<br>• <strong>括号匹配</strong>：左括号压栈，右括号弹栈比对<br>• <strong>单调栈</strong>：维护单调序列，不满足时弹栈处理<br>• <strong>表达式求值</strong>：运算符栈+操作数栈<br>• <strong>嵌套解码</strong>：遇到'['压栈保存外层状态，遇到']'弹栈合并",
+    code: "def stack_framework(s):\n    stack = []\n    for ch in s:\n        if \u9700\u8981\u538b\u6808(ch):\n            stack.append(ch)\n        elif \u9700\u8981\u5f39\u6808(ch):\n            while stack and \u5f39\u6808\u6761\u4ef6(stack[-1], ch):\n                top = stack.pop()\n                \u5904\u7406(top, ch)\n            stack.append(ch)\n    return \u7ed3\u679c"
+  },
+  "单调空间的搜索（二分）": {
+    title: "二分搜索统一框架",
+    explain: "<strong>核心不变量</strong>：在有序空间上每步淘汰一半——将线性搜索降维为对数搜索。<br><br><strong>三种模板</strong>：<br>• <strong>精确匹配</strong>：找到即返回<br>• <strong>左边界(lower_bound)</strong>：第一个\u2265target，找到后right=mid-1继续收缩<br>• <strong>右边界(upper_bound)</strong>：最后一个\u2264target，找到后left=mid+1继续收缩<br><br><strong>二分答案</strong>：将'求最优解'转化为'验证某个值是否可行'——值域上二分+单调判断函数",
+    code: "def lower_bound(nums, target):\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = left + (right - left) // 2\n        if nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return left\n\ndef binary_answer(low, high, check):\n    left, right = low, high\n    while left < right:\n        mid = left + (right - left) // 2\n        if check(mid):\n            right = mid\n        else:\n            left = mid + 1\n    return left"
+  },
+  "二值信息的并行处理（位运算）": {
+    title: "位运算统一框架",
+    explain: "<strong>核心不变量</strong>：将整数视为独立二值通道的并行集合——每一位同时处理一个布尔判断。<br><br><strong>核心操作</strong>：<br>• n & (n-1)：消除最低位1（Brian Kernighan）<br>• n & (-n)：取出最低位1<br>• n ^ n = 0, n ^ 0 = n：异或消去成对项<br>• n >> 1：右移一位 = 除2<br><br><strong>DP+位运算</strong>：ans[i] = ans[i&(i-1)] + 1，利用已计算的小值推导大值",
+    code: "def count_bits(n):\n    count = 0\n    while n:\n        n &= n - 1\n        count += 1\n    return count\n\ndef single_number(nums):\n    res = 0\n    for num in nums:\n        res ^= num\n    return res"
+  },
+  "空间变换（矩阵）": {
+    title: "矩阵操作统一框架",
+    explain: "<strong>核心不变量</strong>：矩阵问题是坐标变换——发现变换的代数规律和不变量。<br><br><strong>常见模式</strong>：<br>• <strong>旋转</strong>：90\u00b0=转置+水平翻转<br>• <strong>螺旋遍历</strong>：四边界收缩<br>• <strong>搜索</strong>：从角落出发确定性排除行/列<br>• <strong>标记</strong>：复用矩阵自身行列作标记空间",
+    code: "def rotate(matrix):\n    n = len(matrix)\n    for i in range(n):\n        for j in range(i+1, n):\n            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n    for i in range(n):\n        matrix[i].reverse()\n\ndef spiral(matrix):\n    t,b,l,r = 0, len(matrix)-1, 0, len(matrix[0])-1\n    res = []\n    while t <= b and l <= r:\n        for j in range(l,r+1): res.append(matrix[t][j]); t+=1\n        for i in range(t,b+1): res.append(matrix[i][r]); r-=1\n        if t<=b:\n            for j in range(r,l-1,-1): res.append(matrix[b][j]); b-=1\n        if l<=r:\n            for i in range(b,t-1,-1): res.append(matrix[i][l]); l+=1\n    return res"
+  },
+  "堆：动态有序集（优先队列/分治）": {
+    title: "堆/优先队列统一框架",
+    explain: "<strong>核心不变量</strong>：堆动态维护集合的最值——插入和取最值都是O(log n)。<br><br><strong>选型</strong>：<br>• <strong>TopK</strong>：最小堆维护前K大，堆顶即第K大<br>• <strong>K路归并</strong>：最小堆每次取K个候选中的最小值<br>• <strong>滑动窗口中位数</strong>：双堆（大顶堆+小顶堆）<br>• <strong>调度问题</strong>：堆维护可用资源",
+    code: "import heapq\ndef top_k(nums, k):\n    heap = []\n    for num in nums:\n        heapq.heappush(heap, num)\n        if len(heap) > k:\n            heapq.heappop(heap)\n    return heap\n\ndef merge_k_lists(lists):\n    heap = []\n    for i, node in enumerate(lists):\n        if node:\n            heapq.heappush(heap, (node.val, i, node))\n    dummy = cur = ListNode(0)\n    while heap:\n        val, i, node = heapq.heappop(heap)\n        cur.next = node\n        cur = cur.next\n        if node.next:\n            heapq.heappush(heap, (node.next.val, i, node.next))\n    return dummy.next"
+  }
 };
 
-// Merge all data
 const allCategories = [
   ...(data_hot100_part1 || []),
   ...(hot100_part2 || []),
   ...(data_part3 || [])
 ];
 
-// Deduplicate by category name
 const seen = new Set();
 const categories = allCategories.filter(c => {
   if (seen.has(c.category)) return false;
@@ -1560,7 +1457,6 @@ const categories = allCategories.filter(c => {
   return true;
 });
 
-// Deduplicate problems by id within each category
 categories.forEach(cat => {
   const pidSet = new Set();
   cat.problems = cat.problems.filter(p => {
@@ -1570,9 +1466,8 @@ categories.forEach(cat => {
   });
 });
 
-const emojis = ['📈','🕸️','🌳','💰','🧮','🔗','📚','🔍','💡','🔲','⛰️','🌊','🪟'];
+const emojis = ['\ud83d\udcc8','\ud83d\udd78\ufe0f','\ud83c\udf33','\ud83d\udcb0','\ud83e\uddee','\ud83d\udd17','\ud83d\udcda','\ud83d\udd0d','\ud83d\udca1','\ud83d\udd32','\u26f0\ufe0f','\ud83c\udf0a','\ud83e\ude9f'];
 
-// Stats
 let totalProblems = 0, easyC = 0, medC = 0, hardC = 0;
 categories.forEach(c => {
   c.problems.forEach(p => {
@@ -1588,12 +1483,11 @@ document.getElementById('easyCount').textContent = easyC;
 document.getElementById('medCount').textContent = medC;
 document.getElementById('hardCount').textContent = hardC;
 
-// Sidebar nav
 const navEl = document.getElementById('sidebarNav');
 categories.forEach((cat, i) => {
   const div = document.createElement('div');
   div.className = 'cat-item';
-  div.innerHTML = '<span class="ce">'+(emojis[i]||'📌')+'</span><span class="cn">'+cat.category+'</span><span class="cc">'+cat.problems.length+'</span>';
+  div.innerHTML = '<span class="ce">'+(emojis[i]||'\ud83d\udccc')+'</span><span class="cn">'+cat.category+'</span><span class="cc">'+cat.problems.length+'</span>';
   div.onclick = () => {
     document.getElementById('cat-' + i)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     closeMobile();
@@ -1601,72 +1495,57 @@ categories.forEach((cat, i) => {
   navEl.appendChild(div);
 });
 
-// Escape HTML
 function escapeHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// Copy code
 function copyCode(btn) {
   const code = btn.closest('.code-section').querySelector('code').textContent;
   navigator.clipboard.writeText(code).then(() => {
-    btn.textContent = '已复制 ✓';
-    setTimeout(() => btn.textContent = '复制', 1500);
+    btn.textContent = '\u5df2\u590d\u5236 \u2713';
+    setTimeout(() => btn.textContent = '\u590d\u5236', 1500);
   });
 }
 
-// Render content
 const contentEl = document.getElementById('content');
 categories.forEach((cat, ci) => {
   const section = document.createElement('div');
   section.className = 'cat-section';
   section.id = 'cat-' + ci;
 
-  // Category header
-  let html = '<div class="cat-header"><h2>'+(emojis[ci]||'📌')+' '+cat.category+'</h2><div class="cat-essence">'+cat.categoryEssence+'</div></div>';
+  let html = '<div class="cat-header"><h2>'+(emojis[ci]||'\ud83d\udccc')+' '+cat.category+'</h2><div class="cat-essence">'+cat.categoryEssence+'</div></div>';
 
-  // Template box (if available)
   const tmpl = categoryTemplates[cat.category];
   if (tmpl) {
-    html += '<div class="template-box"><div class="template-header"><span class="title">📐 '+tmpl.title+'</span><span class="tag">统一框架</span></div><div class="template-explain">'+tmpl.explain+'</div><div class="template-code"><pre><code class="language-python">'+escapeHtml(tmpl.code)+'</code></pre></div></div>';
+    html += '<div class="template-box"><div class="template-header"><span class="title">\ud83d\udcd0 '+tmpl.title+'</span><span class="tag">\u7edf\u4e00\u6846\u67b6</span></div><div class="template-explain">'+tmpl.explain+'</div><div class="template-code"><pre><code class="language-python">'+escapeHtml(tmpl.code)+'</code></pre></div></div>';
   }
 
-  // Problem cards
   cat.problems.forEach((p, pi) => {
     const diffClass = p.difficulty === 'Easy' ? 'easy' : p.difficulty === 'Hard' ? 'hard' : 'medium';
 
-    // Parse insights from essence
     let insightHtml = '';
     if (p.essence) {
-      const points = p.essence.split(/[；;]/).map(s => s.trim()).filter(s => s.length > 0);
+      const points = p.essence.split(/[\uff1b;]/).map(s => s.trim()).filter(s => s.length > 0);
       if (points.length > 0) {
-        insightHtml = '<div class="insight-box"><div class="label">🎯 关键洞察</div><ul>'+points.map(pt => '<li>'+escapeHtml(pt)+'</li>').join('')+'</ul></div>';
+        insightHtml = '<div class="insight-box"><div class="label">\ud83c\udfaf \u5173\u952e\u6d1e\u5bdf</div><ul>'+points.map(pt => '<li>'+escapeHtml(pt)+'</li>').join('')+'</ul></div>';
       }
     }
 
-    // Description box
     let descHtml = '';
     if (p.desc) {
-      descHtml = '<div class="desc-box"><div class="label">📝 题目</div><div class="text">'+escapeHtml(p.desc)+'</div></div>';
+      descHtml = '<div class="desc-box"><div class="label">\ud83d\udcdd \u9898\u76ee</div><div class="text">'+escapeHtml(p.desc)+'</div></div>';
     }
 
-    // Code section
     let codeHtml = '';
     if (p.code) {
-      codeHtml = '<div class="code-section"><div class="code-header"><span class="code-label optimized-label">⚡ 解法</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div><pre><code class="language-python">'+escapeHtml(p.code)+'</code></pre></div>';
+      codeHtml = '<div class="code-section"><div class="code-header"><span class="code-label optimized-label">\u26a1 \u89e3\u6cd5</span><button class="copy-btn" onclick="copyCode(this)">\u590d\u5236</button></div><pre><code class="language-python">'+escapeHtml(p.code)+'</code></pre></div>';
     }
 
-    html += '<div class="problem-card" data-id="'+p.id+'" data-name="'+escapeHtml(p.name)+'" data-essence="'+escapeHtml(p.essence||'')+'" data-analysis="'+escapeHtml(p.analysis||'')+'"><div class="problem-header"><span class="problem-id">#'+p.id+'</span><span class="problem-name">'+p.name+'</span><span class="difficulty '+diffClass+'">'+p.difficulty+'</span><span class="toggle-icon">▶</span></div><div class="problem-body"><div class="problem-content">'+insightHtml+descHtml+'<div class="analysis">'+escapeHtml(p.analysis)+'</div>'+codeHtml+'</div></div></div>';
+    html += '<div class="problem-card" data-id="'+p.id+'" data-name="'+escapeHtml(p.name)+'" data-essence="'+escapeHtml(p.essence||'')+'" data-analysis="'+escapeHtml(p.analysis||'')+'"><div class="problem-header"><span class="problem-id">#'+p.id+'</span><span class="problem-name">'+p.name+'</span><span class="difficulty '+diffClass+'">'+p.difficulty+'</span><span class="toggle-icon">\u25b6</span></div><div class="problem-body"><div class="problem-content">'+insightHtml+descHtml+'<div class="analysis">'+escapeHtml(p.analysis)+'</div>'+codeHtml+'</div></div></div>';
   });
 
   section.innerHTML = html;
-
-  // Highlight template code immediately
-  section.querySelectorAll('.template-code pre code').forEach(block => {
-    hljs.highlightElement(block);
-  });
-
-  // Add click handlers for problem cards
+  section.querySelectorAll('.template-code pre code').forEach(block => hljs.highlightElement(block));
   section.querySelectorAll('.problem-header').forEach(header => {
     header.onclick = () => {
       const card = header.parentElement;
@@ -1677,11 +1556,9 @@ categories.forEach((cat, ci) => {
       }
     };
   });
-
   contentEl.appendChild(section);
 });
 
-// Search
 document.getElementById('searchInput').addEventListener('input', function() {
   const q = this.value.toLowerCase().trim();
   document.querySelectorAll('.problem-card').forEach(card => {
@@ -1698,7 +1575,6 @@ document.getElementById('searchInput').addEventListener('input', function() {
   });
 });
 
-// Sidebar active state
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) {
@@ -1714,7 +1590,6 @@ categories.forEach((_, i) => {
   if (el) observer.observe(el);
 });
 
-// Progress bar + back to top
 window.addEventListener('scroll', () => {
   const h = document.documentElement;
   const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
@@ -1723,7 +1598,6 @@ window.addEventListener('scroll', () => {
 });
 document.getElementById('backTop').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-// Mobile menu
 function closeMobile() {
   document.getElementById('sidebar').classList.remove('open');
 }
@@ -1732,7 +1606,6 @@ document.getElementById('menuToggle').onclick = () => {
 };
 document.getElementById('sidebarOverlay').onclick = closeMobile;
 
-// Touch swipe
 let touchStartX = 0, touchStartY = 0;
 document.addEventListener('touchstart', e => {
   touchStartX = e.touches[0].clientX;
@@ -1749,6 +1622,5 @@ document.addEventListener('touchend', e => {
   }
 }, { passive: true });
 </script>
-
 </body>
 </html>
