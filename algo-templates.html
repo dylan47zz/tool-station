@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>算法模板 · 第一性原理抽象</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Nav */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #21262d;
+      padding: 12px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .nav a { color: #8b949e; font-size: 14px; }
+    .nav a:hover { color: #58a6ff; }
+    .nav .title { color: #f0f6fc; font-weight: 700; font-size: 16px; }
+
+    /* Sidebar */
+    .layout { display: flex; max-width: 1400px; margin: 0 auto; }
+    .sidebar {
+      width: 260px; min-width: 260px;
+      border-right: 1px solid #21262d;
+      padding: 20px 16px;
+      position: sticky; top: 53px;
+      height: calc(100vh - 53px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #30363d transparent;
+    }
+    .sidebar h3 {
+      font-size: 12px; text-transform: uppercase; color: #8b949e;
+      margin: 16px 0 8px; letter-spacing: 1px;
+    }
+    .sidebar h3:first-child { margin-top: 0; }
+    .sidebar a {
+      display: block; padding: 6px 10px; border-radius: 6px;
+      color: #8b949e; font-size: 13px; margin: 2px 0;
+      transition: all 0.15s;
+    }
+    .sidebar a:hover { background: #161b22; color: #58a6ff; text-decoration: none; }
+    .sidebar a.active { background: #1f6feb22; color: #58a6ff; }
+
+    /* Main */
+    .main { flex: 1; padding: 32px 40px; max-width: 900px; }
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { padding: 20px 16px; }
+    }
+
+    /* Sections */
+    .section { margin-bottom: 64px; }
+    .section-title {
+      font-size: 28px; font-weight: 800; color: #f0f6fc;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+    }
+    .section-title .emoji { font-size: 32px; }
+    .section-subtitle { color: #8b949e; font-size: 15px; margin-bottom: 24px; }
+
+    /* Principle Box */
+    .principle {
+      background: linear-gradient(135deg, #1a1e2e 0%, #1f2937 100%);
+      border: 1px solid #30363d; border-radius: 12px;
+      padding: 20px 24px; margin-bottom: 24px;
+    }
+    .principle h4 { color: #f0883e; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .principle p { color: #c9d1d9; font-size: 14px; }
+    .principle code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #79c0ff; }
+
+    /* Template Box */
+    .template-box {
+      background: #161b22; border: 1px solid #30363d; border-radius: 12px;
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .template-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid #21262d;
+      background: #1c2129;
+    }
+    .template-header .lang { color: #8b949e; font-size: 12px; font-weight: 600; }
+    .template-header .tag {
+      font-size: 11px; padding: 3px 8px; border-radius: 10px;
+      background: #1f6feb22; color: #58a6ff;
+    }
+    .template-body {
+      padding: 20px; overflow-x: auto;
+    }
+    .template-body pre {
+      margin: 0; font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+      font-size: 13px; line-height: 1.7; color: #c9d1d9;
+      white-space: pre;
+    }
+    .template-body pre .comment { color: #8b949e; }
+    .template-body pre .keyword { color: #ff7b72; }
+    .template-body pre .func { color: #d2a8ff; }
+    .template-body pre .string { color: #a5d6ff; }
+    .template-body pre .number { color: #79c0ff; }
+    .template-body pre .type { color: #ffa657; }
+    .template-body pre .builtin { color: #ffa657; }
+    .template-body pre .highlight { color: #7ee787; font-weight: 600; }
+    .template-body pre .warn { color: #f0883e; font-weight: 600; }
+
+    /* Diff Table */
+    .diff-table {
+      width: 100%; border-collapse: collapse; margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .diff-table th {
+      background: #1c2129; color: #8b949e; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 1px;
+      padding: 10px 16px; text-align: left; border-bottom: 1px solid #30363d;
+    }
+    .diff-table td {
+      padding: 10px 16px; border-bottom: 1px solid #21262d;
+    }
+    .diff-table tr:hover td { background: #161b22; }
+    .diff-table code { background: #1c2129; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+    /* Example */
+    .example {
+      background: #161b22; border: 1px solid #30363d; border-radius: 12px;
+      overflow: hidden; margin-bottom: 20px;
+    }
+    .example-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px; border-bottom: 1px solid #21262d;
+      background: #1c2129; cursor: pointer;
+    }
+    .example-header:hover { background: #22272e; }
+    .example-header .lc { color: #58a6ff; font-weight: 600; font-size: 14px; }
+    .example-header .name { color: #c9d1d9; font-size: 14px; margin-left: 8px; }
+    .example-header .arrow { color: #8b949e; transition: transform 0.2s; }
+    .example-header.collapsed .arrow { transform: rotate(-90deg); }
+    .example-body { padding: 20px; }
+    .example-body.collapsed { display: none; }
+    .example-body pre {
+      margin: 0; font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+      font-size: 13px; line-height: 1.7; color: #c9d1d9;
+      white-space: pre;
+    }
+    .example-note {
+      margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+      background: #1a1e2e; border-left: 3px solid #f0883e;
+      font-size: 13px; color: #8b949e;
+    }
+
+    /* Optimization */
+    .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 700px) { .opt-grid { grid-template-columns: 1fr; } }
+    .opt-card {
+      background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+      padding: 16px 20px;
+    }
+    .opt-card h5 { color: #7ee787; font-size: 13px; margin-bottom: 8px; }
+    .opt-card p { color: #8b949e; font-size: 13px; }
+    .opt-card code { background: #1c2129; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #79c0ff; }
+
+    /* Comparison Box */
+    .compare {
+      background: #1a1e2e; border: 1px solid #30363d; border-radius: 12px;
+      padding: 20px 24px; margin-bottom: 24px;
+    }
+    .compare h4 { color: #d2a8ff; font-size: 14px; margin-bottom: 12px; }
+    .compare pre {
+      font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+      font-size: 13px; line-height: 1.7; color: #c9d1d9; white-space: pre;
+    }
+
+    /* Summary Table */
+    .summary-box {
+      background: linear-gradient(135deg, #161b22 0%, #1a1e2e 100%);
+      border: 1px solid #30363d; border-radius: 12px;
+      padding: 24px; margin-top: 24px;
+    }
+    .summary-box h4 { color: #f0883e; font-size: 14px; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+    .summary-box pre {
+      font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+      font-size: 13px; line-height: 1.8; color: #c9d1d9; white-space: pre;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+    /* Mobile sidebar toggle */
+    .mobile-toggle {
+      display: none; background: #161b22; border: 1px solid #30363d;
+      color: #c9d1d9; padding: 8px 12px; border-radius: 6px;
+      cursor: pointer; font-size: 14px;
+    }
+    @media (max-width: 900px) {
+      .mobile-toggle { display: inline-block; }
+      .sidebar.open { display: block; position: fixed; top: 53px; left: 0; bottom: 0; z-index: 99; background: #0d1117; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html">← 首页</a>
+    <span class="title">算法模板 · 第一性原理抽象</span>
+    <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">目录</button>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <h3>滑动窗口</h3>
+      <a href="#sliding-window" onclick="activateNav(this)">核心框架</a>
+      <a href="#min-window" onclick="activateNav(this)">最小窗口</a>
+      <a href="#max-window" onclick="activateNav(this)">最大窗口</a>
+      <a href="#count-window" onclick="activateNav(this)">计数窗口</a>
+      <a href="#fixed-window" onclick="activateNav(this)">定长窗口</a>
+
+      <h3>二分搜索</h3>
+      <a href="#binary-search" onclick="activateNav(this)">核心框架</a>
+      <a href="#bs-left-bound" onclick="activateNav(this)">左边界搜索</a>
+      <a href="#bs-right-bound" onclick="activateNav(this)">右边界搜索</a>
+
+      <h3>回溯算法</h3>
+      <a href="#backtrack" onclick="activateNav(this)">核心框架</a>
+      <a href="#bt-subsets" onclick="activateNav(this)">子集</a>
+      <a href="#bt-combo" onclick="activateNav(this)">组合</a>
+      <a href="#bt-permute" onclick="activateNav(this)">排列</a>
+      <a href="#bt-partition" onclick="activateNav(this)">分割</a>
+
+      <h3>动态规划</h3>
+      <a href="#dp" onclick="activateNav(this)">核心框架</a>
+      <a href="#dp-lis" onclick="activateNav(this)">最长递增子序列</a>
+      <a href="#dp-lcs" onclick="activateNav(this)">最长公共子序列</a>
+      <a href="#dp-knapsack" onclick="activateNav(this)">背包问题</a>
+      <a href="#dp-stock" onclick="activateNav(this)">股票问题</a>
+      <a href="#dp-substring" onclick="activateNav(this)">子串/子数组</a>
+
+      <h3>双指针</h3>
+      <a href="#two-pointer" onclick="activateNav(this)">核心框架</a>
+      <a href="#tp-fast-slow" onclick="activateNav(this)">快慢指针</a>
+      <a href="#tp-left-right" onclick="activateNav(this)">左右指针</a>
+
+      <h3>BFS / DFS</h3>
+      <a href="#bfs" onclick="activateNav(this)">BFS 核心</a>
+      <a href="#dfs" onclick="activateNav(this)">DFS 核心</a>
+
+      <h3>单调栈 / 单调队列</h3>
+      <a href="#monotonic" onclick="activateNav(this)">核心框架</a>
+
+      <h3>并查集</h3>
+      <a href="#union-find" onclick="activateNav(this)">核心框架</a>
+    </aside>
+
+    <main class="main">
+
+<!-- ==================== 滑动窗口 ==================== -->
+<div class="section" id="sliding-window">
+  <div class="section-title"><span class="emoji">🪟</span> 滑动窗口</div>
+  <div class="section-subtitle">在序列上找一个满足约束的连续子区间</div>
+
+  <div class="principle">
+    <h4>🎯 第一性原理</h4>
+    <p>滑动窗口要解决的问题本质上只有一个：<strong>在序列上找一个满足约束的连续子区间</strong>。约束分两类：找满足条件的<strong>最短</strong>子区间（最小窗口），找不违反条件的<strong>最长</strong>子区间（最大窗口）。所有变种的结构不变，变的只有三处：<code>收缩条件</code>、<code>答案更新位置</code>、<code>window 数据结构</code>。</p>
+  </div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python · 统一框架</span>
+      <span class="tag">所有滑动窗口题的骨架</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">slidingWindow</span>(s):
+    <span class="comment"># 用合适的数据结构记录窗口中的数据</span>
+    window = ...
+
+    left, right = <span class="number">0</span>, <span class="number">0</span>
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(s):
+        <span class="comment"># c 是将移入窗口的字符</span>
+        c = s[right]
+        window.<span class="func">add</span>(c)
+        right += <span class="number">1</span>
+        <span class="comment"># 进行窗口内数据的一系列更新</span>
+        ...
+
+        <span class="comment"># 判断左侧窗口是否要收缩</span>
+        <span class="keyword">while</span> left &lt; right <span class="keyword">and</span> <span class="highlight">window needs shrink</span>:
+            d = s[left]
+            window.<span class="func">remove</span>(d)
+            left += <span class="number">1</span>
+            <span class="comment"># 进行窗口内数据的一系列更新</span>
+            ...</pre>
+    </div>
+  </div>
+
+  <table class="diff-table">
+    <tr><th>类型</th><th>收缩条件</th><th>答案更新位置</th><th>答案方向</th></tr>
+    <tr><td>最小窗口</td><td><code>满足约束时缩</code></td><td>while 内（缩前更新）</td><td>min，越小越优</td></tr>
+    <tr><td>最大窗口</td><td><code>违反约束时缩</code></td><td>while 后（缩后更新）</td><td>max，越大越优</td></tr>
+    <tr><td>计数窗口</td><td><code>违反约束时缩</code></td><td>while 后 += right-left</td><td>累加计数</td></tr>
+    <tr><td>定长窗口</td><td><code>固定大小滑动</code></td><td>每步检查</td><td>收集所有解</td></tr>
+  </table>
+</div>
+
+<!-- 最小窗口 -->
+<div class="section" id="min-window">
+  <div class="section-title" style="font-size:22px;">📍 最小窗口模板</div>
+  <div class="section-subtitle">找满足约束的最短子区间。核心：满足条件时贪心左缩。</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">最小窗口 · 通用</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">minWindow</span>(s, need):
+    <span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+    window = Counter()
+    valid = <span class="number">0</span>  <span class="comment"># 已满足的字符种类数</span>
+
+    left = right = <span class="number">0</span>
+    min_len = <span class="builtin">float</span>(<span class="string">'inf'</span>)
+    start = <span class="number">0</span>
+
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(s):
+        c = s[right]
+        right += <span class="number">1</span>
+        <span class="keyword">if</span> c <span class="keyword">in</span> need:
+            window[c] += <span class="number">1</span>
+            <span class="keyword">if</span> window[c] == need[c]:
+                valid += <span class="number">1</span>
+
+        <span class="comment"># 满足约束 → 左缩贪心</span>
+        <span class="keyword">while</span> <span class="highlight">valid == len(need)</span>:
+            <span class="keyword">if</span> right - left &lt; min_len:
+                min_len = right - left
+                start = left
+            d = s[left]
+            left += <span class="number">1</span>
+            <span class="keyword">if</span> d <span class="keyword">in</span> need:
+                <span class="keyword">if</span> window[d] == need[d]:
+                    valid -= <span class="number">1</span>
+                window[d] -= <span class="number">1</span>
+
+    <span class="keyword">return</span> <span class="string">""</span> <span class="keyword">if</span> min_len == <span class="builtin">float</span>(<span class="string">'inf'</span>) <span class="keyword">else</span> s[start:start+min_len]</pre>
+    </div>
+  </div>
+
+  <div class="opt-grid">
+    <div class="opt-card">
+      <h5>⚡ valid 计数器</h5>
+      <p>用 <code>valid</code> 记录已满足的字符种类数，判断覆盖从 O(26) 降到 O(1)</p>
+    </div>
+    <div class="opt-card">
+      <h5>⚡ 只记 need 中的字符</h5>
+      <p><code>window</code> 只记录 <code>need</code> 中出现的字符，减少无效操作</p>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 76</span><span class="name">最小覆盖子串</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="comment"># 直接套模板，need = Counter(t)</span>
+need = Counter(t)
+<span class="comment"># ... 完整同上模板 ...</span></pre>
+      <div class="example-note">💡 原型题，模板直接适用</div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 209</span><span class="name">长度最小的子数组</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">minSubArrayLen</span>(target, nums):
+    left = right = <span class="number">0</span>
+    window_sum = <span class="number">0</span>
+    min_len = <span class="builtin">float</span>(<span class="string">'inf'</span>)
+
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(nums):
+        window_sum += nums[right]
+        right += <span class="number">1</span>
+
+        <span class="keyword">while</span> <span class="highlight">window_sum >= target</span>:
+            min_len = <span class="builtin">min</span>(min_len, right - left)
+            window_sum -= nums[left]
+            left += <span class="number">1</span>
+
+    <span class="keyword">return</span> <span class="number">0</span> <span class="keyword">if</span> min_len == <span class="builtin">float</span>(<span class="string">'inf'</span>) <span class="keyword">else</span> min_len</pre>
+      <div class="example-note">💡 window 退化为 int，valid 退化为 <code>window_sum >= target</code>，结构完全一致</div>
+    </div>
+  </div>
+</div>
+
+<!-- 最大窗口 -->
+<div class="section" id="max-window">
+  <div class="section-title" style="font-size:22px;">📍 最大窗口模板</div>
+  <div class="section-subtitle">找不违反约束的最长子区间。核心：违反时左缩恢复合法性，缩完再更新答案。</div>
+
+  <div class="compare">
+    <h4>⚠️ 最小 vs 最大窗口的唯一区别</h4>
+<pre><span class="comment"># 最小窗口：while 满足: 缩 → 在循环内更新</span>
+<span class="keyword">while</span> <span class="highlight">valid == len(need)</span>:
+    更新答案   <span class="comment"># ← 循环内</span>
+    左缩
+
+<span class="comment"># 最大窗口：while 违反: 缩 → 在循环外更新</span>
+<span class="keyword">while</span> <span class="highlight">违反条件</span>:
+    左缩
+更新答案     <span class="comment"># ← 循环外</span></pre>
+  </div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">最大窗口 · 通用</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">maxWindow</span>(s):
+    <span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+    window = Counter()
+    left = right = <span class="number">0</span>
+    max_len = <span class="number">0</span>
+
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(s):
+        c = s[right]
+        right += <span class="number">1</span>
+        window[c] += <span class="number">1</span>
+
+        <span class="comment"># 违反约束 → 左缩恢复</span>
+        <span class="keyword">while</span> <span class="highlight">违反条件</span>:
+            d = s[left]
+            left += <span class="number">1</span>
+            window[d] -= <span class="number">1</span>
+
+        <span class="comment"># 缩完一定合法，更新答案</span>
+        max_len = <span class="builtin">max</span>(max_len, right - left)
+
+    <span class="keyword">return</span> max_len</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 3</span><span class="name">最长无重复子串</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">lengthOfLongestSubstring</span>(s):
+    <span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+    window = Counter()
+    left = right = <span class="number">0</span>
+    max_len = <span class="number">0</span>
+
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(s):
+        c = s[right]
+        right += <span class="number">1</span>
+        window[c] += <span class="number">1</span>
+
+        <span class="keyword">while</span> <span class="highlight">window[c] > 1</span>:  <span class="comment"># 出现重复 → 违反</span>
+            d = s[left]
+            left += <span class="number">1</span>
+            window[d] -= <span class="number">1</span>
+
+        max_len = <span class="builtin">max</span>(max_len, right - left)
+
+    <span class="keyword">return</span> max_len</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 424</span><span class="name">替换后的最长重复字符</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">characterReplacement</span>(s, k):
+    <span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+    window = Counter()
+    left = right = <span class="number">0</span>
+    max_len = <span class="number">0</span>
+    max_count = <span class="number">0</span>
+
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(s):
+        c = s[right]
+        right += <span class="number">1</span>
+        window[c] += <span class="number">1</span>
+        max_count = <span class="builtin">max</span>(max_count, window[c])
+
+        <span class="comment"># 窗口长度 - 最高频 > k → 需替换次数超限</span>
+        <span class="keyword">while</span> <span class="highlight">right - left - max_count > k</span>:
+            d = s[left]
+            left += <span class="number">1</span>
+            window[d] -= <span class="number">1</span>
+
+        max_len = <span class="builtin">max</span>(max_len, right - left)
+
+    <span class="keyword">return</span> max_len</pre>
+      <div class="example-note">💡 <code>max_count</code> 可以不缩小！只影响答案上界，更小的值只会让窗口更早收缩，答案只会更小或不变。O(26n) → O(n)</div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 1004</span><span class="name">最大连续1的个数 III</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">longestOnes</span>(nums, k):
+    left = right = <span class="number">0</span>
+    zeros = <span class="number">0</span>
+    max_len = <span class="number">0</span>
+
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(nums):
+        <span class="keyword">if</span> nums[right] == <span class="number">0</span>:
+            zeros += <span class="number">1</span>
+        right += <span class="number">1</span>
+
+        <span class="keyword">while</span> <span class="highlight">zeros > k</span>:
+            <span class="keyword">if</span> nums[left] == <span class="number">0</span>:
+                zeros -= <span class="number">1</span>
+            left += <span class="number">1</span>
+
+        max_len = <span class="builtin">max</span>(max_len, right - left)
+
+    <span class="keyword">return</span> max_len</pre>
+      <div class="example-note">💡 本质同 LC 424，<code>zeros</code> = 窗口长度 - max_count，从"最高频"换成"数0"</div>
+    </div>
+  </div>
+</div>
+
+<!-- 计数窗口 -->
+<div class="section" id="count-window">
+  <div class="section-title" style="font-size:22px;">📍 计数窗口模板</div>
+  <div class="section-subtitle">统计满足条件的子数组个数。核心：atMost(K) 恰好转化技巧。</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">计数窗口 · 通用</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">countSubarrays</span>(nums, k):
+    <span class="keyword">return</span> <span class="func">atMost</span>(nums, k)  <span class="comment"># 恰好K = atMost(K) - atMost(K-1)</span>
+
+<span class="keyword">def</span> <span class="func">atMost</span>(nums, k):
+    <span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+    window = Counter()
+    left = right = <span class="number">0</span>
+    count = <span class="number">0</span>
+
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(nums):
+        c = nums[right]
+        right += <span class="number">1</span>
+        window[c] += <span class="number">1</span>
+
+        <span class="keyword">while</span> <span class="highlight">len(window) > k</span>:  <span class="comment"># 超过k种 → 违反</span>
+            d = nums[left]
+            left += <span class="number">1</span>
+            window[d] -= <span class="number">1</span>
+            <span class="keyword">if</span> window[d] == <span class="number">0</span>:
+                <span class="keyword">del</span> window[d]
+
+        <span class="comment"># 以 right-1 结尾的所有合法子数组个数</span>
+        count += <span class="highlight">right - left</span>
+
+    <span class="keyword">return</span> count</pre>
+    </div>
+  </div>
+
+  <div class="principle">
+    <h4>🎯 right - left 的含义</h4>
+    <p>以 <code>right-1</code> 为右端点的合法子数组恰好有 <code>right - left</code> 个（左端点可以从 <code>left</code> 到 <code>right-1</code>）。<br>例：<code>[a b c d e]</code>，left=2, right=5 → 以 e 结尾的合法子数组：cde, bcde, abcde = 3 = right-left</p>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 713</span><span class="name">乘积小于K的子数组</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">numSubarrayProductLessThanK</span>(nums, k):
+    <span class="keyword">if</span> k &lt;= <span class="number">1</span>: <span class="keyword">return</span> <span class="number">0</span>
+    left = right = <span class="number">0</span>
+    prod = <span class="number">1</span>
+    count = <span class="number">0</span>
+
+    <span class="keyword">while</span> right &lt; <span class="builtin">len</span>(nums):
+        prod *= nums[right]
+        right += <span class="number">1</span>
+
+        <span class="keyword">while</span> <span class="highlight">prod >= k</span>:
+            prod //= nums[left]
+            left += <span class="number">1</span>
+
+        count += right - left
+
+    <span class="keyword">return</span> count</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 992</span><span class="name">K个不同整数的子数组</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">subarraysWithKDistinct</span>(nums, k):
+    <span class="keyword">return</span> <span class="func">atMost</span>(nums, k) - <span class="func">atMost</span>(nums, k - <span class="number">1</span>)
+
+<span class="comment"># atMost 同上模板</span></pre>
+      <div class="example-note">💡 恰好 K = 最多 K - 最多(K-1)，把"恰好"拆成两个"最多"</div>
+    </div>
+  </div>
+</div>
+
+<!-- 定长窗口 -->
+<div class="section" id="fixed-window">
+  <div class="section-title" style="font-size:22px;">📍 定长窗口模板</div>
+  <div class="section-subtitle">窗口大小固定为 k，每步维护窗口状态并更新答案。</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">定长窗口 · 通用</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">fixedWindow</span>(s, k):
+    <span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+    window = Counter()
+    <span class="comment"># 初始化前 k 个元素</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(k):
+        window[s[i]] += <span class="number">1</span>
+    <span class="keyword">if</span> 满足条件: 记录答案
+
+    <span class="comment"># 滑动</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(k, <span class="builtin">len</span>(s)):
+        window[s[i]] += <span class="number">1</span>         <span class="comment"># 右端进入</span>
+        window[s[i - k]] -= <span class="number">1</span>      <span class="comment"># 左端离开</span>
+        <span class="keyword">if</span> window[s[i - k]] == <span class="number">0</span>:
+            <span class="keyword">del</span> window[s[i - k]]
+        <span class="keyword">if</span> 满足条件: 记录答案</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 567</span><span class="name">字符串排列</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">checkInclusion</span>(s1, s2):
+    <span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+    need = Counter(s1)
+    window = Counter()
+    valid = <span class="number">0</span>
+    k = <span class="builtin">len</span>(s1)
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(s2)):
+        c = s2[i]
+        <span class="keyword">if</span> c <span class="keyword">in</span> need:
+            window[c] += <span class="number">1</span>
+            <span class="keyword">if</span> window[c] == need[c]: valid += <span class="number">1</span>
+
+        <span class="keyword">if</span> i >= k:
+            d = s2[i - k]
+            <span class="keyword">if</span> d <span class="keyword">in</span> need:
+                <span class="keyword">if</span> window[d] == need[d]: valid -= <span class="number">1</span>
+                window[d] -= <span class="number">1</span>
+
+        <span class="keyword">if</span> valid == <span class="builtin">len</span>(need):
+            <span class="keyword">return</span> <span class="keyword">True</span>
+
+    <span class="keyword">return</span> <span class="keyword">False</span></pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 438</span><span class="name">找所有字母异位词</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="comment"># 同 LC 567，把 return True 改成</span>
+res.<span class="func">append</span>(i - k + <span class="number">1</span>)</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 239</span><span class="name">滑动窗口最大值</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">from</span> collections <span class="keyword">import</span> deque
+
+<span class="keyword">def</span> <span class="func">maxSlidingWindow</span>(nums, k):
+    q = deque()  <span class="comment"># 存下标，维护单调递减</span>
+    res = []
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(nums)):
+        <span class="keyword">while</span> q <span class="keyword">and</span> nums[q[-<span class="number">1</span>]] &lt;= nums[i]:
+            q.<span class="func">pop</span>()
+        q.<span class="func">append</span>(i)
+
+        <span class="keyword">if</span> q[<span class="number">0</span>] &lt;= i - k:
+            q.<span class="func">popleft</span>()
+
+        <span class="keyword">if</span> i >= k - <span class="number">1</span>:
+            res.<span class="func">append</span>(nums[q[<span class="number">0</span>]])
+
+    <span class="keyword">return</span> res</pre>
+      <div class="example-note">💡 window 优化为单调队列，只维护可能成为最大值的候选</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 二分搜索 ==================== -->
+<div class="section" id="binary-search">
+  <div class="section-title"><span class="emoji">🔍</span> 二分搜索</div>
+  <div class="section-subtitle">在有序空间上找分界点。核心：闭区间 [left, right]，循环不变量。</div>
+
+  <div class="principle">
+    <h4>🎯 第一性原理</h4>
+    <p>二分搜索的本质：<strong>在有序空间上找一个分界点</strong>，使得分界点左侧满足某性质、右侧不满足（或反过来）。所有变种的区别仅在于"找什么分界点"——左边界、右边界、还是任意一个。</p>
+  </div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python · 统一框架</span>
+      <span class="tag">闭区间 [left, right] 不变量</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">binarySearch</span>(nums, target):
+    left, right = <span class="number">0</span>, <span class="builtin">len</span>(nums) - <span class="number">1</span>
+
+    <span class="keyword">while</span> left &lt;= right:  <span class="comment"># 闭区间，= 时还有一个元素</span>
+        mid = left + (right - left) // <span class="number">2</span>
+
+        <span class="keyword">if</span> nums[mid] == target:
+            <span class="highlight"># 标准二分：直接返回</span>
+            <span class="keyword">return</span> mid
+            <span class="comment"># 找左边界：继续向左收缩</span>
+            <span class="comment"># right = mid - 1</span>
+            <span class="comment"># 找右边界：继续向右收缩</span>
+            <span class="comment"># left = mid + 1</span>
+        <span class="keyword">elif</span> nums[mid] &lt; target:
+            left = mid + <span class="number">1</span>
+        <span class="keyword">else</span>:
+            right = mid - <span class="number">1</span>
+
+    <span class="keyword">return</span> -<span class="number">1</span></pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="bs-left-bound">
+  <div class="section-title" style="font-size:22px;">📍 左边界搜索</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">找第一个等于 target 的位置</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">leftBound</span>(nums, target):
+    left, right = <span class="number">0</span>, <span class="builtin">len</span>(nums) - <span class="number">1</span>
+
+    <span class="keyword">while</span> left &lt;= right:
+        mid = left + (right - left) // <span class="number">2</span>
+
+        <span class="keyword">if</span> nums[mid] &lt; target:
+            left = mid + <span class="number">1</span>
+        <span class="keyword">elif</span> nums[mid] > target:
+            right = mid - <span class="number">1</span>
+        <span class="keyword">else</span>:
+            <span class="highlight">right = mid - 1</span>  <span class="comment"># 命中但继续向左收缩</span>
+
+    <span class="comment"># left 指向第一个 >= target 的位置</span>
+    <span class="keyword">if</span> left >= <span class="builtin">len</span>(nums) <span class="keyword">or</span> nums[left] != target:
+        <span class="keyword">return</span> -<span class="number">1</span>
+    <span class="keyword">return</span> left</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 34</span><span class="name">在排序数组中查找元素的第一个和最后一个位置</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">searchRange</span>(nums, target):
+    <span class="keyword">return</span> [<span class="func">leftBound</span>(nums, target), <span class="func">rightBound</span>(nums, target)]</pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="bs-right-bound">
+  <div class="section-title" style="font-size:22px;">📍 右边界搜索</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">找最后一个等于 target 的位置</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">rightBound</span>(nums, target):
+    left, right = <span class="number">0</span>, <span class="builtin">len</span>(nums) - <span class="number">1</span>
+
+    <span class="keyword">while</span> left &lt;= right:
+        mid = left + (right - left) // <span class="number">2</span>
+
+        <span class="keyword">if</span> nums[mid] &lt; target:
+            left = mid + <span class="number">1</span>
+        <span class="keyword">elif</span> nums[mid] > target:
+            right = mid - <span class="number">1</span>
+        <span class="keyword">else</span>:
+            <span class="highlight">left = mid + 1</span>  <span class="comment"># 命中但继续向右收缩</span>
+
+    <span class="comment"># right 指向最后一个 <= target 的位置</span>
+    <span class="keyword">if</span> right &lt; <span class="number">0</span> <span class="keyword">or</span> nums[right] != target:
+        <span class="keyword">return</span> -<span class="number">1</span>
+    <span class="keyword">return</span> right</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 35</span><span class="name">搜索插入位置</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="comment"># 就是 leftBound 的简化版</span>
+<span class="keyword">def</span> <span class="func">searchInsert</span>(nums, target):
+    left, right = <span class="number">0</span>, <span class="builtin">len</span>(nums) - <span class="number">1</span>
+    <span class="keyword">while</span> left &lt;= right:
+        mid = left + (right - left) // <span class="number">2</span>
+        <span class="keyword">if</span> nums[mid] &lt; target: left = mid + <span class="number">1</span>
+        <span class="keyword">else</span>: right = mid - <span class="number">1</span>
+    <span class="keyword">return</span> left</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 875 / LC 1011</span><span class="name">二分猜答案（Koko吃香蕉 / D天内送达）</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="comment"># 通用模式：二分搜"最小满足条件的值"</span>
+<span class="keyword">def</span> <span class="func">minSatisfying</span>(low, high, condition):
+    left, right = low, high
+    <span class="keyword">while</span> left &lt;= right:
+        mid = left + (right - left) // <span class="number">2</span>
+        <span class="keyword">if</span> <span class="func">condition</span>(mid):  <span class="comment"># mid 能满足 → 尝试更小</span>
+            right = mid - <span class="number">1</span>
+        <span class="keyword">else</span>:                 <span class="comment"># mid 不满足 → 需要更大</span>
+            left = mid + <span class="number">1</span>
+    <span class="keyword">return</span> left</pre>
+      <div class="example-note">💡 本质是左边界搜索，搜索空间从"数组下标"变为"答案值域"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 回溯算法 ==================== -->
+<div class="section" id="backtrack">
+  <div class="section-title"><span class="emoji">🌳</span> 回溯算法</div>
+  <div class="section-subtitle">在决策树上做 DFS + 剪枝。核心：选或不选，走到底回退。</div>
+
+  <div class="principle">
+    <h4>🎯 第一性原理</h4>
+    <p>回溯的本质：<strong>在决策树上做深度优先遍历</strong>。每个节点代表一个"选择"，每条边代表"做了某个选择"。走到叶子节点就是一条完整决策路径，回退就是撤销选择。所有变种的区别只有三处：<code>选择列表</code>、<code>剪枝条件</code>、<code>终止条件</code>。</p>
+  </div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python · 统一框架</span>
+      <span class="tag">所有回溯题的骨架</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">backtrack</span>(路径, 选择列表):
+    <span class="keyword">if</span> <span class="highlight">满足结束条件</span>:
+        result.<span class="func">append</span>(路径.<span class="func">copy</span>())
+        <span class="keyword">return</span>
+
+    <span class="keyword">for</span> 选择 <span class="keyword">in</span> 选择列表:
+        <span class="keyword">if</span> <span class="highlight">剪枝条件</span>: <span class="keyword">continue</span>
+        <span class="func">做选择</span>       <span class="comment"># 路径.add(选择)</span>
+        <span class="func">backtrack</span>(路径, 新选择列表)
+        <span class="func">撤销选择</span>     <span class="comment"># 路径.remove(选择)</span></pre>
+    </div>
+  </div>
+
+  <table class="diff-table">
+    <tr><th>类型</th><th>选择列表</th><th>剪枝</th><th>终止条件</th></tr>
+    <tr><td>子集</td><td><code>i → n</code></td><td>无（全选）</td><td>每层都收集</td></tr>
+    <tr><td>组合</td><td><code>i → n</code></td><td>剩余不够 k 个</td><td>路径长度 == k</td></tr>
+    <tr><td>排列</td><td><code>0 → n（未使用的）</code></td><td><code>used[i]</code></td><td>路径长度 == n</td></tr>
+    <tr><td>分割</td><td><code>start → n</code></td><td>子串不合法</td><td>start == n</td></tr>
+  </table>
+</div>
+
+<div class="section" id="bt-subsets">
+  <div class="section-title" style="font-size:22px;">📍 子集模板</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">子集 · 无重复 / 有重复</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">subsets</span>(nums):
+    res = []
+    <span class="keyword">def</span> <span class="func">backtrack</span>(start, path):
+        res.<span class="func">append</span>(path[:])  <span class="comment"># 每层都收集</span>
+        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(start, <span class="builtin">len</span>(nums)):
+            <span class="comment"># 有重复元素时剪枝：</span>
+            <span class="comment"># if i > start and nums[i] == nums[i-1]: continue</span>
+            path.<span class="func">append</span>(nums[i])
+            <span class="func">backtrack</span>(i + <span class="number">1</span>, path)
+            path.<span class="func">pop</span>()
+    <span class="func">backtrack</span>(<span class="number">0</span>, [])
+    <span class="keyword">return</span> res</pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="bt-combo">
+  <div class="section-title" style="font-size:22px;">📍 组合模板</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">组合 · C(n,k)</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">combine</span>(n, k):
+    res = []
+    <span class="keyword">def</span> <span class="func">backtrack</span>(start, path):
+        <span class="keyword">if</span> <span class="builtin">len</span>(path) == k:
+            res.<span class="func">append</span>(path[:])
+            <span class="keyword">return</span>
+        <span class="comment"># 剪枝：剩余元素不够 k - len(path) 个</span>
+        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(start, n - (k - <span class="builtin">len</span>(path)) + <span class="number">2</span>):
+            path.<span class="func">append</span>(i)
+            <span class="func">backtrack</span>(i + <span class="number">1</span>, path)
+            path.<span class="func">pop</span>()
+    <span class="func">backtrack</span>(<span class="number">1</span>, [])
+    <span class="keyword">return</span> res</pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="bt-permute">
+  <div class="section-title" style="font-size:22px;">📍 排列模板</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">排列 · 全排列 / 有重复</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">permute</span>(nums):
+    res = []
+    used = [<span class="keyword">False</span>] * <span class="builtin">len</span>(nums)
+
+    <span class="keyword">def</span> <span class="func">backtrack</span>(path):
+        <span class="keyword">if</span> <span class="builtin">len</span>(path) == <span class="builtin">len</span>(nums):
+            res.<span class="func">append</span>(path[:])
+            <span class="keyword">return</span>
+        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(nums)):
+            <span class="keyword">if</span> <span class="highlight">used[i]</span>: <span class="keyword">continue</span>
+            <span class="comment"># 有重复元素时：</span>
+            <span class="comment"># if i > 0 and nums[i] == nums[i-1] and not used[i-1]: continue</span>
+            used[i] = <span class="keyword">True</span>
+            path.<span class="func">append</span>(nums[i])
+            <span class="func">backtrack</span>(path)
+            path.<span class="func">pop</span>()
+            used[i] = <span class="keyword">False</span>
+
+    <span class="func">backtrack</span>([])
+    <span class="keyword">return</span> res</pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="bt-partition">
+  <div class="section-title" style="font-size:22px;">📍 分割模板</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">分割回文串 / IP地址</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">partition</span>(s):
+    res = []
+    <span class="keyword">def</span> <span class="func">backtrack</span>(start, path):
+        <span class="keyword">if</span> start == <span class="builtin">len</span>(s):
+            res.<span class="func">append</span>(path[:])
+            <span class="keyword">return</span>
+        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(start, <span class="builtin">len</span>(s)):
+            sub = s[start:i+<span class="number">1</span>]
+            <span class="keyword">if</span> <span class="highlight">not is_valid(sub)</span>: <span class="keyword">continue</span>  <span class="comment"># 剪枝</span>
+            path.<span class="func">append</span>(sub)
+            <span class="func">backtrack</span>(i + <span class="number">1</span>, path)
+            path.<span class="func">pop</span>()
+    <span class="func">backtrack</span>(<span class="number">0</span>, [])
+    <span class="keyword">return</span> res</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 动态规划 ==================== -->
+<div class="section" id="dp">
+  <div class="section-title"><span class="emoji">📊</span> 动态规划</div>
+  <div class="section-subtitle">找状态定义和状态转移方程。核心：最优子结构 + 无后效性。</div>
+
+  <div class="principle">
+    <h4>🎯 第一性原理</h4>
+    <p>DP 的本质：<strong>用子问题的最优解组合出原问题的最优解</strong>。拆解为三步：(1) 定义 <code>dp[i]</code> 或 <code>dp[i][j]</code> 的含义；(2) 推导状态转移方程；(3) 确定边界条件和遍历顺序。所有 DP 题的难点只在第 (2) 步——怎么从子问题推出当前问题。</p>
+  </div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python · 统一框架</span>
+      <span class="tag">所有 DP 题的骨架</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># 1. 定义 dp 含义</span>
+dp = [... 满足边界条件 ...]
+
+<span class="comment"># 2. 遍历填表</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(...):
+    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(...):
+        <span class="highlight">dp[i][j] = 由子问题推导</span>
+
+<span class="comment"># 3. 返回答案</span>
+<span class="keyword">return</span> dp[...]</pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="dp-lis">
+  <div class="section-title" style="font-size:22px;">📍 最长递增子序列 (LIS)</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">O(n²) DP / O(n log n) 二分</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># O(n²) DP</span>
+<span class="keyword">def</span> <span class="func">lengthOfLIS</span>(nums):
+    dp = [<span class="number">1</span>] * <span class="builtin">len</span>(nums)  <span class="comment"># dp[i] = 以 nums[i] 结尾的 LIS 长度</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(nums)):
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(i):
+            <span class="keyword">if</span> nums[j] &lt; nums[i]:
+                dp[i] = <span class="builtin">max</span>(dp[i], dp[j] + <span class="number">1</span>)
+    <span class="keyword">return</span> <span class="builtin">max</span>(dp)
+
+<span class="comment"># O(n log n) 贪心 + 二分</span>
+<span class="keyword">def</span> <span class="func">lengthOfLIS</span>(nums):
+    tails = []  <span class="comment"># tails[i] = 长度为 i+1 的 LIS 的最小末尾</span>
+    <span class="keyword">for</span> x <span class="keyword">in</span> nums:
+        pos = <span class="func">bisect_left</span>(tails, x)
+        <span class="keyword">if</span> pos == <span class="builtin">len</span>(tails):
+            tails.<span class="func">append</span>(x)
+        <span class="keyword">else</span>:
+            tails[pos] = x
+    <span class="keyword">return</span> <span class="builtin">len</span>(tails)</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 300</span><span class="name">最长递增子序列</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="comment"># 原型题，同上</span></pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 354</span><span class="name">俄罗斯套娃信封</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="comment"># 宽度升序 + 同宽高度降序 → 对高度求 LIS</span>
+envelopes.<span class="func">sort</span>(key=<span class="keyword">lambda</span> x: (x[<span class="number">0</span>], -x[<span class="number">1</span>]))
+<span class="keyword">return</span> <span class="func">lengthOfLIS</span>([h <span class="keyword">for</span> _, h <span class="keyword">in</span> envelopes])</pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="dp-lcs">
+  <div class="section-title" style="font-size:22px;">📍 最长公共子序列 (LCS)</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">二维 DP</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">def</span> <span class="func">longestCommonSubsequence</span>(text1, text2):
+    m, n = <span class="builtin">len</span>(text1), <span class="builtin">len</span>(text2)
+    <span class="comment"># dp[i][j] = text1[:i] 和 text2[:j] 的 LCS 长度</span>
+    dp = [[<span class="number">0</span>] * (n + <span class="number">1</span>) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="builtin">range</span>(m + <span class="number">1</span>)]
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">1</span>, m + <span class="number">1</span>):
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">1</span>, n + <span class="number">1</span>):
+            <span class="keyword">if</span> text1[i-<span class="number">1</span>] == text2[j-<span class="number">1</span>]:
+                <span class="highlight">dp[i][j] = dp[i-1][j-1] + 1</span>
+            <span class="keyword">else</span>:
+                <span class="highlight">dp[i][j] = max(dp[i-1][j], dp[i][j-1])</span>
+
+    <span class="keyword">return</span> dp[m][n]</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 1143</span><span class="name">最长公共子序列</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="comment"># 原型题，同上模板</span></pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 72</span><span class="name">编辑距离</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">minDistance</span>(word1, word2):
+    m, n = <span class="builtin">len</span>(word1), <span class="builtin">len</span>(word2)
+    dp = [[<span class="number">0</span>] * (n + <span class="number">1</span>) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="builtin">range</span>(m + <span class="number">1</span>)]
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(m + <span class="number">1</span>): dp[i][<span class="number">0</span>] = i
+    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(n + <span class="number">1</span>): dp[<span class="number">0</span>][j] = j
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">1</span>, m + <span class="number">1</span>):
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">1</span>, n + <span class="number">1</span>):
+            <span class="keyword">if</span> word1[i-<span class="number">1</span>] == word2[j-<span class="number">1</span>]:
+                dp[i][j] = dp[i-<span class="number">1</span>][j-<span class="number">1</span>]
+            <span class="keyword">else</span>:
+                dp[i][j] = <span class="builtin">min</span>(
+                    dp[i-<span class="number">1</span>][j] + <span class="number">1</span>,    <span class="comment"># 删</span>
+                    dp[i][j-<span class="number">1</span>] + <span class="number">1</span>,    <span class="comment"># 插</span>
+                    dp[i-<span class="number">1</span>][j-<span class="number">1</span>] + <span class="number">1</span>  <span class="comment"># 替</span>
+                )
+    <span class="keyword">return</span> dp[m][n]</pre>
+      <div class="example-note">💡 LCS 只能匹配/跳过，编辑距离多了插入/删除/替换三种操作，但结构同源</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="dp-knapsack">
+  <div class="section-title" style="font-size:22px;">📍 背包问题</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">0-1 背包 / 完全背包</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># 0-1 背包：每个物品最多选 1 次</span>
+<span class="keyword">def</span> <span class="func">knapsack01</span>(W, wt, val):
+    dp = [<span class="number">0</span>] * (W + <span class="number">1</span>)
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(wt)):
+        <span class="highlight">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(W, wt[i] - <span class="number">1</span>, -<span class="number">1</span>):  <span class="comment"># ← 逆序！保证每物品只用1次</span>
+            dp[j] = <span class="builtin">max</span>(dp[j], dp[j - wt[i]] + val[i])
+    <span class="keyword">return</span> dp[W]
+
+<span class="comment"># 完全背包：每个物品可选无限次</span>
+<span class="keyword">def</span> <span class="func">knapsackComplete</span>(W, wt, val):
+    dp = [<span class="number">0</span>] * (W + <span class="number">1</span>)
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(wt)):
+        <span class="highlight">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(wt[i], W + <span class="number">1</span>):  <span class="comment"># ← 正序！允许重复选</span>
+            dp[j] = <span class="builtin">max</span>(dp[j], dp[j - wt[i]] + val[i])
+    <span class="keyword">return</span> dp[W]</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <h4>⚠️ 0-1 vs 完全背包的唯一区别</h4>
+<pre><span class="comment"># 0-1 背包：逆序遍历（保证每物品只用1次）</span>
+<span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(W, wt[i]-<span class="number">1</span>, -<span class="number">1</span>):
+
+<span class="comment"># 完全背包：正序遍历（允许重复选）</span>
+<span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(wt[i], W+<span class="number">1</span>):</pre>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 416</span><span class="name">分割等和子集（0-1背包变体）</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">canPartition</span>(nums):
+    total = <span class="builtin">sum</span>(nums)
+    <span class="keyword">if</span> total % <span class="number">2</span>: <span class="keyword">return</span> <span class="keyword">False</span>
+    target = total // <span class="number">2</span>
+    dp = [<span class="keyword">False</span>] * (target + <span class="number">1</span>)
+    dp[<span class="number">0</span>] = <span class="keyword">True</span>
+    <span class="keyword">for</span> num <span class="keyword">in</span> nums:
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(target, num - <span class="number">1</span>, -<span class="number">1</span>):  <span class="comment"># 逆序 → 0-1背包</span>
+            dp[j] = dp[j] <span class="keyword">or</span> dp[j - num]
+    <span class="keyword">return</span> dp[target]</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 518</span><span class="name">零钱兑换 II（完全背包变体·组合数）</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">change</span>(amount, coins):
+    dp = [<span class="number">0</span>] * (amount + <span class="number">1</span>)
+    dp[<span class="number">0</span>] = <span class="number">1</span>
+    <span class="keyword">for</span> coin <span class="keyword">in</span> coins:          <span class="comment"># 外层物品</span>
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(coin, amount + <span class="number">1</span>):  <span class="comment"># 内层正序 → 完全背包</span>
+            dp[j] += dp[j - coin]
+    <span class="keyword">return</span> dp[amount]</pre>
+      <div class="example-note">💡 求组合数：外层物品、内层容量。求排列数：外层容量、内层物品（LC 377）</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="dp-stock">
+  <div class="section-title" style="font-size:22px;">📍 股票问题</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">通用状态机 DP</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># dp[i][k][0/1] = 第i天、已交易k次、持有(1)/不持有(0) 时的最大利润</span>
+<span class="comment"># 通用转移方程：</span>
+<span class="comment"># dp[i][k][0] = max(dp[i-1][k][0], dp[i-1][k][1] + prices[i])  # 卖</span>
+<span class="comment"># dp[i][k][1] = max(dp[i-1][k][1], dp[i-1][k-1][0] - prices[i]) # 买</span>
+
+<span class="comment"># k=1 (LC 121)</span>
+hold, cash = -prices[<span class="number">0</span>], <span class="number">0</span>
+<span class="keyword">for</span> p <span class="keyword">in</span> prices[<span class="number">1</span>:]:
+    hold = <span class="builtin">max</span>(hold, -p)
+    cash = <span class="builtin">max</span>(cash, hold + p)
+
+<span class="comment"># k=∞ (LC 122) — 不限次数</span>
+hold, cash = -prices[<span class="number">0</span>], <span class="number">0</span>
+<span class="keyword">for</span> p <span class="keyword">in</span> prices[<span class="number">1</span>:]:
+    hold = <span class="builtin">max</span>(hold, cash - p)  <span class="comment"># 用前一天的 cash 买</span>
+    cash = <span class="builtin">max</span>(cash, hold + p)
+
+<span class="comment"># k=2 (LC 123)</span>
+buy1, sell1 = -prices[<span class="number">0</span>], <span class="number">0</span>
+buy2, sell2 = -prices[<span class="number">0</span>], <span class="number">0</span>
+<span class="keyword">for</span> p <span class="keyword">in</span> prices[<span class="number">1</span>:]:
+    buy1 = <span class="builtin">max</span>(buy1, -p)
+    sell1 = <span class="builtin">max</span>(sell1, buy1 + p)
+    buy2 = <span class="builtin">max</span>(buy2, sell1 - p)
+    sell2 = <span class="builtin">max</span>(sell2, buy2 + p)
+
+<span class="comment"># 冷冻期 (LC 309) — 卖后隔一天才能买</span>
+hold, cash, freeze = -prices[<span class="number">0</span>], <span class="number">0</span>, <span class="number">0</span>
+<span class="keyword">for</span> p <span class="keyword">in</span> prices[<span class="number">1</span>:]:
+    prev_cash = cash
+    hold = <span class="builtin">max</span>(hold, freeze - p)  <span class="comment"># 用前一天的 freeze 买</span>
+    cash = <span class="builtin">max</span>(cash, hold + p)
+    freeze = prev_cash  <span class="comment"># 昨天卖的，今天冷冻</span></pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="dp-substring">
+  <div class="section-title" style="font-size:22px;">📍 子串 / 子数组</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">最大子数组和 / 最长回文子串 / 乘积最大子数组</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># 最大子数组和 (LC 53) — dp[i] = 以 i 结尾的最大和</span>
+<span class="keyword">def</span> <span class="func">maxSubArray</span>(nums):
+    dp = nums[:]
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="number">1</span>, <span class="builtin">len</span>(nums)):
+        dp[i] = <span class="builtin">max</span>(nums[i], dp[i-<span class="number">1</span>] + nums[i])
+    <span class="keyword">return</span> <span class="builtin">max</span>(dp)
+
+<span class="comment"># 乘积最大子数组 (LC 152) — 需要同时维护最大和最小（负负得正）</span>
+<span class="keyword">def</span> <span class="func">maxProduct</span>(nums):
+    cur_max = cur_min = res = nums[<span class="number">0</span>]
+    <span class="keyword">for</span> x <span class="keyword">in</span> nums[<span class="number">1</span>:]:
+        candidates = (x, cur_max * x, cur_min * x)
+        cur_max, cur_min = <span class="builtin">max</span>(candidates), <span class="builtin">min</span>(candidates)
+        res = <span class="builtin">max</span>(res, cur_max)
+    <span class="keyword">return</span> res
+
+<span class="comment"># 最长回文子串 (LC 5) — 中心扩展</span>
+<span class="keyword">def</span> <span class="func">longestPalindrome</span>(s):
+    res = <span class="string">""</span>
+    <span class="keyword">def</span> <span class="func">expand</span>(l, r):
+        <span class="keyword">while</span> l >= <span class="number">0</span> <span class="keyword">and</span> r &lt; <span class="builtin">len</span>(s) <span class="keyword">and</span> s[l] == s[r]:
+            l -= <span class="number">1</span>; r += <span class="number">1</span>
+        <span class="keyword">return</span> s[l+<span class="number">1</span>:r]
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(s)):
+        res = <span class="builtin">max</span>(res, <span class="func">expand</span>(i, i), <span class="func">expand</span>(i, i+<span class="number">1</span>), key=<span class="builtin">len</span>)
+    <span class="keyword">return</span> res</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 双指针 ==================== -->
+<div class="section" id="two-pointer">
+  <div class="section-title"><span class="emoji">↔️</span> 双指针</div>
+  <div class="section-subtitle">用两个指针消除冗余遍历。核心：指针移动的单调性。</div>
+
+  <div class="principle">
+    <h4>🎯 第一性原理</h4>
+    <p>双指针的本质：<strong>利用单调性消除 O(n²) 的冗余搜索</strong>。两个指针各守一头，根据当前状态决定谁移动——保证不错过任何解，且每个元素只访问常数次。</p>
+  </div>
+</div>
+
+<div class="section" id="tp-fast-slow">
+  <div class="section-title" style="font-size:22px;">📍 快慢指针</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">链表判环 / 找中点 / 删倒数第N</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># 判环 (LC 141/142)</span>
+slow = fast = head
+<span class="keyword">while</span> fast <span class="keyword">and</span> fast.next:
+    slow = slow.next
+    fast = fast.next.next
+    <span class="keyword">if</span> slow == fast:  <span class="comment"># 有环</span>
+        <span class="comment"># 找环入口：重置一个指针到 head，同步走</span>
+        p = head
+        <span class="keyword">while</span> p != slow:
+            p = p.next
+            slow = slow.next
+        <span class="keyword">return</span> p
+
+<span class="comment"># 找中点</span>
+slow = fast = head
+<span class="keyword">while</span> fast <span class="keyword">and</span> fast.next:
+    slow = slow.next
+    fast = fast.next.next
+<span class="keyword">return</span> slow  <span class="comment"># slow 即中点</span>
+
+<span class="comment"># 删除倒数第 N 个 (LC 19)</span>
+dummy = ListNode(<span class="number">0</span>, head)
+fast = slow = dummy
+<span class="keyword">for</span> _ <span class="keyword">in</span> <span class="builtin">range</span>(n + <span class="number">1</span>): fast = fast.next
+<span class="keyword">while</span> fast: slow = slow.next; fast = fast.next
+slow.next = slow.next.next</pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="tp-left-right">
+  <div class="section-title" style="font-size:22px;">📍 左右指针</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">两数之和 / 反转 / 回文</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># 有序数组两数之和 (LC 167)</span>
+left, right = <span class="number">0</span>, <span class="builtin">len</span>(nums) - <span class="number">1</span>
+<span class="keyword">while</span> left &lt; right:
+    s = nums[left] + nums[right]
+    <span class="keyword">if</span> s == target: <span class="keyword">return</span> [left+<span class="number">1</span>, right+<span class="number">1</span>]
+    <span class="keyword">elif</span> s &lt; target: left += <span class="number">1</span>
+    <span class="keyword">else</span>: right -= <span class="number">1</span>
+
+<span class="comment"># 盛最多水的容器 (LC 11)</span>
+left, right = <span class="number">0</span>, <span class="builtin">len</span>(height) - <span class="number">1</span>
+max_area = <span class="number">0</span>
+<span class="keyword">while</span> left &lt; right:
+    max_area = <span class="builtin">max</span>(max_area, <span class="builtin">min</span>(height[left], height[right]) * (right - left))
+    <span class="keyword">if</span> height[left] &lt; height[right]: left += <span class="number">1</span>
+    <span class="keyword">else</span>: right -= <span class="number">1</span>
+
+<span class="comment"># 接雨水 (LC 42) — 双指针版</span>
+left, right = <span class="number">0</span>, <span class="builtin">len</span>(height) - <span class="number">1</span>
+left_max = right_max = res = <span class="number">0</span>
+<span class="keyword">while</span> left &lt; right:
+    <span class="keyword">if</span> height[left] &lt; height[right]:
+        left_max = <span class="builtin">max</span>(left_max, height[left])
+        res += left_max - height[left]
+        left += <span class="number">1</span>
+    <span class="keyword">else</span>:
+        right_max = <span class="builtin">max</span>(right_max, height[right])
+        res += right_max - height[right]
+        right -= <span class="number">1</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== BFS / DFS ==================== -->
+<div class="section" id="bfs">
+  <div class="section-title"><span class="emoji">🌊</span> BFS</div>
+  <div class="section-subtitle">逐层扩展。核心：队列 + visited，天然最短路径。</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">BFS · 通用</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">from</span> collections <span class="keyword">import</span> deque
+
+<span class="keyword">def</span> <span class="func">bfs</span>(start, target):
+    q = deque([start])
+    visited = {start}
+    step = <span class="number">0</span>
+
+    <span class="keyword">while</span> q:
+        sz = <span class="builtin">len</span>(q)
+        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="builtin">range</span>(sz):
+            cur = q.<span class="func">popleft</span>()
+            <span class="keyword">if</span> cur == target:
+                <span class="keyword">return</span> step
+            <span class="keyword">for</span> neighbor <span class="keyword">in</span> <span class="func">getNeighbors</span>(cur):
+                <span class="keyword">if</span> neighbor <span class="keyword">not</span> <span class="keyword">in</span> visited:
+                    visited.<span class="func">add</span>(neighbor)
+                    q.<span class="func">append</span>(neighbor)
+        step += <span class="number">1</span></pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 200</span><span class="name">岛屿数量</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">numIslands</span>(grid):
+    <span class="keyword">if</span> <span class="keyword">not</span> grid: <span class="keyword">return</span> <span class="number">0</span>
+    m, n = <span class="builtin">len</span>(grid), <span class="builtin">len</span>(grid[<span class="number">0</span>])
+    count = <span class="number">0</span>
+
+    <span class="keyword">def</span> <span class="func">bfs</span>(i, j):
+        q = deque([(i, j)])
+        grid[i][j] = <span class="string">'0'</span>
+        <span class="keyword">while</span> q:
+            x, y = q.<span class="func">popleft</span>()
+            <span class="keyword">for</span> dx, dy <span class="keyword">in</span> [(<span class="number">1</span>,<span class="number">0</span>),(-<span class="number">1</span>,<span class="number">0</span>),(<span class="number">0</span>,<span class="number">1</span>),(<span class="number">0</span>,-<span class="number">1</span>)]:
+                nx, ny = x+dx, y+dy
+                <span class="keyword">if</span> <span class="number">0</span> &lt;= nx &lt; m <span class="keyword">and</span> <span class="number">0</span> &lt;= ny &lt; n <span class="keyword">and</span> grid[nx][ny] == <span class="string">'1'</span>:
+                    grid[nx][ny] = <span class="string">'0'</span>
+                    q.<span class="func">append</span>((nx, ny))
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(m):
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(n):
+            <span class="keyword">if</span> grid[i][j] == <span class="string">'1'</span>:
+                <span class="func">bfs</span>(i, j)
+                count += <span class="number">1</span>
+    <span class="keyword">return</span> count</pre>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="dfs">
+  <div class="section-title"><span class="emoji">🔄</span> DFS</div>
+  <div class="section-subtitle">一条路走到底再回退。核心：递归/栈 + visited，适合连通性/拓扑排序。</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">DFS · 通用</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># 递归版</span>
+<span class="keyword">def</span> <span class="func">dfs</span>(node, visited):
+    <span class="keyword">if</span> node <span class="keyword">in</span> visited: <span class="keyword">return</span>
+    visited.<span class="func">add</span>(node)
+    <span class="keyword">for</span> neighbor <span class="keyword">in</span> <span class="func">getNeighbors</span>(node):
+        <span class="func">dfs</span>(neighbor, visited)
+
+<span class="comment"># 栈版（迭代）</span>
+<span class="keyword">def</span> <span class="func">dfs_iter</span>(start):
+    stack = [start]
+    visited = {start}
+    <span class="keyword">while</span> stack:
+        node = stack.<span class="func">pop</span>()
+        <span class="keyword">for</span> neighbor <span class="keyword">in</span> <span class="func">getNeighbors</span>(node):
+            <span class="keyword">if</span> neighbor <span class="keyword">not</span> <span class="keyword">in</span> visited:
+                visited.<span class="func">add</span>(neighbor)
+                stack.<span class="func">append</span>(neighbor)</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 207</span><span class="name">课程表（拓扑排序）</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">canFinish</span>(numCourses, prerequisites):
+    <span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict, deque
+    graph = defaultdict(<span class="builtin">list</span>)
+    indegree = [<span class="number">0</span>] * numCourses
+    <span class="keyword">for</span> a, b <span class="keyword">in</span> prerequisites:
+        graph[b].<span class="func">append</span>(a)
+        indegree[a] += <span class="number">1</span>
+
+    q = deque([i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(numCourses) <span class="keyword">if</span> indegree[i] == <span class="number">0</span>])
+    count = <span class="number">0</span>
+    <span class="keyword">while</span> q:
+        node = q.<span class="func">popleft</span>()
+        count += <span class="number">1</span>
+        <span class="keyword">for</span> nb <span class="keyword">in</span> graph[node]:
+            indegree[nb] -= <span class="number">1</span>
+            <span class="keyword">if</span> indegree[nb] == <span class="number">0</span>:
+                q.<span class="func">append</span>(nb)
+    <span class="keyword">return</span> count == numCourses</pre>
+      <div class="example-note">💡 BFS 拓扑排序：入度为 0 的入队，逐步消除入度</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 单调栈 / 单调队列 ==================== -->
+<div class="section" id="monotonic">
+  <div class="section-title"><span class="emoji">📐</span> 单调栈 / 单调队列</div>
+  <div class="section-subtitle">维护单调性以快速查询"下一个更大/更小元素"或"滑动窗口极值"。</div>
+
+  <div class="principle">
+    <h4>🎯 第一性原理</h4>
+    <p>单调栈的本质：<strong>用 O(n) 时间找到每个元素两侧第一个比它大/小的元素</strong>。单调队列是单调栈在滑动窗口上的推广——窗口滑动时，队头出队、队尾入队，始终维护单调性。</p>
+  </div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">单调栈 · 下一个更大元素</span>
+    </div>
+    <div class="template-body">
+<pre><span class="comment"># 下一个更大元素 (LC 496/739/503)</span>
+<span class="keyword">def</span> <span class="func">nextGreaterElement</span>(nums):
+    res = [-<span class="number">1</span>] * <span class="builtin">len</span>(nums)
+    stack = []  <span class="comment"># 存下标，维护单调递减栈</span>
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(nums)):
+        <span class="keyword">while</span> stack <span class="keyword">and</span> nums[stack[-<span class="number">1</span>]] &lt; nums[i]:
+            <span class="highlight">res[stack.pop()] = nums[i]</span>  <span class="comment"># 弹出的元素找到了下一个更大</span>
+        stack.<span class="func">append</span>(i)
+
+    <span class="keyword">return</span> res
+
+<span class="comment"># 循环数组版 (LC 503)：遍历 2*n，取 i % n</span>
+<span class="comment"># 每日温度 (LC 739)：res 存距离 i - stack.pop()</span>
+
+<span class="comment"># 接雨水 (LC 42) — 单调栈版</span>
+<span class="keyword">def</span> <span class="func">trap</span>(height):
+    stack = []
+    res = <span class="number">0</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(height)):
+        <span class="keyword">while</span> stack <span class="keyword">and</span> height[stack[-<span class="number">1</span>]] &lt;= height[i]:
+            mid = stack.<span class="func">pop</span>()
+            <span class="keyword">if</span> stack:
+                h = <span class="builtin">min</span>(height[stack[-<span class="number">1</span>]], height[i]) - height[mid]
+                w = i - stack[-<span class="number">1</span>] - <span class="number">1</span>
+                res += h * w
+        stack.<span class="func">append</span>(i)
+    <span class="keyword">return</span> res</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 并查集 ==================== -->
+<div class="section" id="union-find">
+  <div class="section-title"><span class="emoji">🔗</span> 并查集</div>
+  <div class="section-subtitle">动态维护等价类。核心：路径压缩 + 按秩合并。</div>
+
+  <div class="template-box">
+    <div class="template-header">
+      <span class="lang">Python</span>
+      <span class="tag">带路径压缩和按秩合并</span>
+    </div>
+    <div class="template-body">
+<pre><span class="keyword">class</span> <span class="type">UnionFind</span>:
+    <span class="keyword">def</span> <span class="func">__init__</span>(self, n):
+        self.parent = <span class="builtin">list</span>(<span class="builtin">range</span>(n))
+        self.rank = [<span class="number">0</span>] * n
+        self.count = n  <span class="comment"># 连通分量数</span>
+
+    <span class="keyword">def</span> <span class="func">find</span>(self, x):
+        <span class="keyword">if</span> self.parent[x] != x:
+            <span class="highlight">self.parent[x] = self.find(self.parent[x])</span>  <span class="comment"># 路径压缩</span>
+        <span class="keyword">return</span> self.parent[x]
+
+    <span class="keyword">def</span> <span class="func">union</span>(self, x, y):
+        px, py = self.<span class="func">find</span>(x), self.<span class="func">find</span>(y)
+        <span class="keyword">if</span> px == py: <span class="keyword">return</span>
+        <span class="comment"># 按秩合并</span>
+        <span class="keyword">if</span> self.rank[px] &lt; self.rank[py]:
+            px, py = py, px
+        self.parent[py] = px
+        <span class="keyword">if</span> self.rank[px] == self.rank[py]:
+            self.rank[px] += <span class="number">1</span>
+        self.count -= <span class="number">1</span>
+
+    <span class="keyword">def</span> <span class="func">connected</span>(self, x, y):
+        <span class="keyword">return</span> self.<span class="func">find</span>(x) == self.<span class="func">find</span>(y)</pre>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="example-header" onclick="toggleExample(this)">
+      <span><span class="lc">LC 200</span><span class="name">岛屿数量（并查集版）</span></span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="example-body">
+<pre><span class="keyword">def</span> <span class="func">numIslands</span>(grid):
+    <span class="keyword">if</span> <span class="keyword">not</span> grid: <span class="keyword">return</span> <span class="number">0</span>
+    m, n = <span class="builtin">len</span>(grid), <span class="builtin">len</span>(grid[<span class="number">0</span>])
+    uf = <span class="type">UnionFind</span>(m * n + <span class="number">1</span>)  <span class="comment"># +1 给水域虚拟节点</span>
+    dummy = m * n
+
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="builtin">range</span>(m):
+        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="builtin">range</span>(n):
+            <span class="keyword">if</span> grid[i][j] == <span class="string">'0'</span>:
+                uf.<span class="func">union</span>(i * n + j, dummy)
+            <span class="keyword">else</span>:
+                <span class="keyword">for</span> di, dj <span class="keyword">in</span> [(<span class="number">0</span>,<span class="number">1</span>),(<span class="number">1</span>,<span class="number">0</span>)]:
+                    ni, nj = i+di, j+dj
+                    <span class="keyword">if</span> <span class="number">0</span> &lt;= ni &lt; m <span class="keyword">and</span> <span class="number">0</span> &lt;= nj &lt; n <span class="keyword">and</span> grid[ni][nj] == <span class="string">'1'</span>:
+                        uf.<span class="func">union</span>(i*n+j, ni*n+nj)
+
+    <span class="keyword">return</span> uf.count - <span class="number">1</span>  <span class="comment"># 减去虚拟节点</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 总览 ==================== -->
+<div class="summary-box">
+  <h4>📋 全局速查表</h4>
+<pre>
+┌──────────────┬────────────────────────────┬───────────────────────────┐
+│ 算法类型     │ 核心本质                   │ 关键数据结构              │
+├──────────────┼────────────────────────────┼───────────────────────────┤
+│ 滑动窗口     │ 连续子区间 + 约束          │ Counter / set / deque     │
+│ 二分搜索     │ 有序空间上找分界点         │ 无（双指针即可）          │
+│ 回溯         │ 决策树 DFS + 剪枝          │ used[] / 起始下标         │
+│ 动态规划     │ 子问题最优解组合           │ dp[] / dp[][]             │
+│ 双指针       │ 单调性消除 O(n²)          │ 快慢指针 / 左右指针       │
+│ BFS          │ 逐层扩展找最短路径         │ deque + visited           │
+│ DFS          │ 一条路走到底再回退         │ 递归栈 / 显式栈           │
+│ 单调栈       │ 找两侧第一个大/小元素      │ 单调栈 / 单调队列         │
+│ 并查集       │ 动态维护等价类             │ parent[] + rank[]         │
+└──────────────┴────────────────────────────┴───────────────────────────┘
+
+优化路径：
+  滑动窗口: Counter → int/set → deque（按需退化），条件判断 → valid 计数器 O(1)
+  二分搜索: 标准版 → 左/右边界版 → 二分猜答案（搜索空间=值域）
+  回溯:     基础版 → 剪枝（同层去重/剩余不够/used数组）
+  DP:       二维 → 一维滚动数组，O(n²) → O(n log n)（LIS 二分优化）
+  背包:     0-1逆序 / 完全正序，组合数外层物品 / 排列数外层容量
+</pre>
+</div>
+
+    </main>
+  </div>
+
+  <script>
+    // Toggle example sections
+    function toggleExample(header) {
+      header.classList.toggle('collapsed');
+      const body = header.nextElementSibling;
+      body.classList.toggle('collapsed');
+    }
+
+    // Active nav
+    function activateNav(el) {
+      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+      el.classList.add('active');
+      // Close mobile sidebar
+      document.querySelector('.sidebar').classList.remove('open');
+    }
+
+    // Scroll spy
+    const sections = document.querySelectorAll('.section[id]');
+    const navLinks = document.querySelectorAll('.sidebar a');
+
+    function updateActiveNav() {
+      let current = '';
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 120) current = section.id;
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+  </script>
+</body>
+</html>
